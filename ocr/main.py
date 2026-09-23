@@ -344,6 +344,68 @@ def get_available_windows() -> List[Dict[str, Any]]:
     return windows
 
 
+def get_available_cameras() -> List[Dict[str, Any]]:
+    """
+    Mendeteksi daftar perangkat video capture yang tersedia,
+    termasuk Hardware Capture Card (USB HDMI), Webcam fisik, dan
+    Virtual Camera (seperti OBS Virtual Camera, vMix Video, Cam Link, dll).
+    """
+    cameras = []
+    system = platform.system()
+    cam_names = []
+
+    # 1. Ambil nama deskriptif perangkat jika memungkinkan
+    if system == "Darwin":
+        try:
+            import subprocess
+            out = subprocess.check_output(['system_profiler', 'SPCameraDataType'], text=True, stderr=subprocess.DEVNULL)
+            for line in out.splitlines():
+                line_str = line.strip()
+                if line.startswith('    ') and not line.startswith('      ') and line_str.endswith(':'):
+                    c_name = line_str[:-1].strip()
+                    if c_name and c_name != 'Camera':
+                        cam_names.append(c_name)
+        except Exception:
+            pass
+    elif system == "Windows":
+        try:
+            import subprocess
+            # Query PnP Entity untuk nama kamera / virtual video driver
+            ps_cmd = 'Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPClass -eq "Camera" -or $_.PNPClass -eq "Image" } | Select-Object -ExpandProperty Name'
+            out = subprocess.check_output(['powershell', '-NoProfile', '-Command', ps_cmd], text=True, stderr=subprocess.DEVNULL)
+            for line in out.splitlines():
+                name = line.strip()
+                if name:
+                    cam_names.append(name)
+        except Exception:
+            pass
+
+    # 2. Cek ketersediaan indeks VideoCapture (0 sampai 7)
+    for idx in range(8):
+        try:
+            cap = cv2.VideoCapture(idx)
+            if cap.isOpened():
+                # Dapatkan nama dari deteksi sistem jika ada
+                if idx < len(cam_names):
+                    device_name = cam_names[idx]
+                else:
+                    device_name = f"Video / Virtual Camera #{idx}"
+
+                w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                cameras.append({
+                    "index": idx,
+                    "name": device_name,
+                    "width": w,
+                    "height": h
+                })
+                cap.release()
+        except Exception:
+            pass
+
+    return cameras
+
+
 def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
     """
     Mengambil screenshot/frame dari window tertentu dan mengembalikan format OpenCV BGR.
@@ -509,7 +571,7 @@ is_running = True
 # ==============================================================================
 # WORKER: CAPTURE & OCR PROCESSING LOOP
 # ==============================================================================
-def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any]] = None):
+def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any]] = None, camera_device: Optional[Dict[str, Any]] = None):
     global ocr_data_store, is_running, latest_annotated_frame
     print(f"\n[Worker] Memulai Background Worker pada mode: {capture_mode}...")
 
@@ -524,16 +586,21 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
             print("[Worker Error] Target window belum dipilih!")
             return
     elif capture_mode == 2:
-        # Mode 2: Video Capture Device (HDMI Capture Card / Webcam)
-        device_index = 0
+        # Mode 2: Video Capture Device (HDMI Capture Card / Webcam / OBS Virtual Camera / vMix)
+        device_index = camera_device.get("index", 0) if camera_device else 0
+        device_name = camera_device.get("name", f"Camera #{device_index}") if camera_device else f"Camera #{device_index}"
+        
         cap = cv2.VideoCapture(device_index)
         if not cap.isOpened():
-            print(f"[Worker Error] Gagal membuka video capture device index: {device_index}")
+            print(f"[Worker Error] Gagal membuka video capture device '{device_name}' (Index: {device_index})")
             return
-        # Atur resolusi capture (opsional, disesuaikan dengan capture card)
+            
+        # Atur resolusi capture ke 1080p (jika didukung perangkat)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        print(f"[Worker] Video Capture Card aktif pada index: {device_index}")
+        actual_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        actual_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print(f"[Worker] Video Device Aktif: {device_name} (Index: {device_index}, Resolusi: {actual_w}x{actual_h})")
 
     # ==========================================================================
     # Loop Pengambilan Frame & Ekstraksi OCR
@@ -568,12 +635,16 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                 pre_crop = roi_cfg.get("pre_crop", {})
                 titlebar_h = pre_crop.get("titlebar_height", 0)
 
-                # Pemotongan title bar scrcpy otomatis per platform (macOS: 28px, Windows 11: 32px)
-                if platform.system() == "Darwin":
-                    t_crop = pre_crop.get("titlebar_height_macos", pre_crop.get("titlebar_height", 28))
-                elif platform.system() == "Windows":
-                    t_crop = pre_crop.get("titlebar_height_windows", 32)
+                # Pemotongan title bar scrcpy otomatis per platform (hanya berlaku jika mode Window Capture)
+                if capture_mode == 1:
+                    if platform.system() == "Darwin":
+                        t_crop = pre_crop.get("titlebar_height_macos", pre_crop.get("titlebar_height", 28))
+                    elif platform.system() == "Windows":
+                        t_crop = pre_crop.get("titlebar_height_windows", 32)
+                    else:
+                        t_crop = 0
                 else:
+                    # Video capture card / Virtual Camera (OBS/vMix) sudah full frame murni tanpa titlebar OS
                     t_crop = 0
 
                 if t_crop > 0 and h > t_crop + 100:
@@ -1127,7 +1198,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print("Pilih Sumber Video Capture:")
     print(" [1] Window Capture (Pilih jendela aplikasi tertentu)")
-    print(" [2] Video Capture Card (USB HDMI Capture Card / cv2.VideoCapture(0))")
+    print(" [2] Video / Virtual Camera (OBS Virtual Cam, vMix, USB HDMI Capture, Webcam)")
     print("=" * 60)
 
     # Input pilihan dari pengguna
@@ -1137,6 +1208,7 @@ if __name__ == "__main__":
 
     selected_mode = int(choice)
     target_window = None
+    target_camera = None
 
     if selected_mode == 1:
         print("\nMemindai daftar jendela yang terbuka...")
@@ -1162,12 +1234,40 @@ if __name__ == "__main__":
                     break
             print(f"Pilihan tidak valid. Masukkan angka antara 1 sampai {len(windows)}.")
 
-        print(f"\n=> Target terpilih: {target_window['title']}")
+        print(f"\n=> Target Window terpilih: {target_window['title']}")
+
+    elif selected_mode == 2:
+        print("\nMemindai perangkat Video / Virtual Camera yang tersedia...")
+        cameras = get_available_cameras()
+
+        if not cameras:
+            print("[Warning] Tidak ada perangkat kamera / virtual camera yang terdeteksi otomatis.")
+            manual_idx = input("Masukkan indeks device secara manual (default 0): ").strip()
+            cam_idx = int(manual_idx) if manual_idx.isdigit() else 0
+            target_camera = {"index": cam_idx, "name": f"Device #{cam_idx}"}
+        else:
+            print("\nDaftar Perangkat Video / Virtual Camera Tersedia:")
+            print("-" * 60)
+            for idx, cam in enumerate(cameras, start=1):
+                dim_str = f"{cam['width']}x{cam['height']}" if cam.get('width') else "Unknown"
+                print(f" [{idx:2d}] {cam['name']} (Index: {cam['index']}, Res: {dim_str})")
+            print("-" * 60)
+
+            while True:
+                cam_choice = input(f"Pilih nomor kamera (1-{len(cameras)}): ").strip()
+                if cam_choice.isdigit():
+                    c_idx = int(cam_choice)
+                    if 1 <= c_idx <= len(cameras):
+                        target_camera = cameras[c_idx - 1]
+                        break
+                print(f"Pilihan tidak valid. Masukkan angka antara 1 sampai {len(cameras)}.")
+
+        print(f"\n=> Target Kamera terpilih: {target_camera['name']} (Index: {target_camera['index']})")
 
     # 1. Jalankan Background Worker di thread terpisah (Daemon Thread)
     worker_thread = threading.Thread(
         target=background_worker, 
-        args=(selected_mode, target_window), 
+        args=(selected_mode, target_window, target_camera), 
         daemon=True
     )
     worker_thread.start()
