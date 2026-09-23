@@ -763,7 +763,8 @@ def roi_checker_ui():
 
         <div class="card">
             <div class="stream-container">
-                <img src="/preview/stream" alt="Live ROI Stream" onerror="this.src='/preview/frame.jpg?t=' + Date.now();">
+                <div id="loadingText" style="position: absolute; color: #94a3b8; font-size: 14px;">Menunggu frame dari worker OCR...</div>
+                <img id="roiPreview" src="/preview/frame.jpg" alt="Live ROI Stream" style="z-index: 1;">
             </div>
 
             <div class="legend-grid">
@@ -790,6 +791,27 @@ def roi_checker_ui():
                 Jika kotak ROI di atas belum pas di atas teks/angka game, Anda cukup mengedit file <code>roi_config.json</code> (ubah nilai <code>x</code>, <code>y</code>, <code>width</code>, atau <code>height</code>). Skrip akan otomatis membaca koordinat baru setiap frame tanpa perlu restart aplikasi.
             </div>
         </div>
+
+        <script>
+            const img = document.getElementById('roiPreview');
+            const loading = document.getElementById('loadingText');
+
+            function refreshFrame() {
+                const nextImg = new Image();
+                nextImg.onload = function() {
+                    img.src = this.src;
+                    loading.style.display = 'none';
+                    setTimeout(refreshFrame, 200);
+                };
+                nextImg.onerror = function() {
+                    setTimeout(refreshFrame, 500);
+                };
+                nextImg.src = '/preview/frame.jpg?t=' + Date.now();
+            }
+
+            img.onload = () => { loading.style.display = 'none'; };
+            setTimeout(refreshFrame, 200);
+        </script>
     </body>
     </html>
     """
