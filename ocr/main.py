@@ -16,6 +16,22 @@ from typing import Optional, Dict, Any, List
 # Path ke file konfigurasi ROI
 ROI_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "roi_config.json")
 
+# Deteksi otomatis path Tesseract di Windows jika terinstall di lokasi standar
+if platform.system() == "Windows":
+    try:
+        import pytesseract
+        windows_tesseract_paths = [
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+            os.path.expanduser(r"~\AppData\Local\Programs\Tesseract-OCR\tesseract.exe")
+        ]
+        for tpath in windows_tesseract_paths:
+            if os.path.exists(tpath):
+                pytesseract.pytesseract.tesseract_cmd = tpath
+                break
+    except Exception:
+        pass
+
 def load_roi_config() -> Dict[str, Any]:
     """Membaca koordinat ROI dari file konfigurasi JSON."""
     if os.path.exists(ROI_CONFIG_PATH):
@@ -146,9 +162,72 @@ def read_single_digit(crop: np.ndarray) -> int:
         pass
     return 0
 
+def parse_kda_string(raw_text: str) -> Optional[str]:
+    """
+    Parser cerdas untuk mengurai format KDA (K/D/A) dan menangani kasus jika slash '/'
+    terbaca sebagai '|', 'I', 'l', '\\', atau angka '1'.
+    """
+    if not raw_text:
+        return None
+    # 1. Bersihkan spasi dan simbol pemisah yang mirip garis miring
+    cleaned = raw_text.strip().replace(" ", "").replace("|", "/").replace("\\", "/").replace("I", "/").replace("l", "/")
+
+    # 2. Cek apakah sudah membentuk pola K/D/A yang benar
+    match = re.search(r"(\d+)/(\d+)/(\d+)", cleaned)
+    if match:
+        k, d, a = match.groups()
+        return f"{int(k)}/{int(d)}/{int(a)}"
+
+    # 3. Jika hanya ada 1 slash (misal "8/12" atau "81/2" di mana salah satu slash terbaca 1)
+    match_half = re.search(r"(\d+)/(\d+)", cleaned)
+    if match_half:
+        p1, p2 = match_half.groups()
+        if len(p2) >= 2 and p2[0] == "1":
+            # Kasus "8/12" -> K=8, D=1, A=2
+            return f"{int(p1)}/1/{int(p2[1:])}"
+        elif len(p1) >= 2 and p1[-1] == "1":
+            # Kasus "81/2" -> K=8, D=1, A=2
+            return f"{int(p1[:-1])}/1/{int(p2)}"
+
+    # 4. Fallback jika semua slash terbaca menjadi angka 1 (misal "81112" -> 8/1/2)
+    digits_only = re.sub(r"[^0-9]", "", cleaned)
+    if len(digits_only) == 4 and digits_only[1] == "1" and digits_only[2] == "1":
+        # Pola: K 1 D A -> misal 8 1 1 2 -> 8/1/2
+        return f"{digits_only[0]}/{digits_only[2]}/{digits_only[3]}"
+    elif len(digits_only) == 3:
+        # Pola minimal: 3 digit misal 812 di mana 1 adalah D
+        return f"{digits_only[0]}/{digits_only[1]}/{digits_only[2]}"
+
+    return cleaned if "/" in cleaned else None
+
+def read_kda_text(crop: np.ndarray) -> Optional[str]:
+    """Membaca teks KDA dengan pembesaran khusus dan pembersihan kontras."""
+    try:
+        # Resize 3x agar garis miring dan angka kecil lebih jelas
+        up = cv2.resize(crop, (0, 0), fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
+        res = recognize_text_elements(up)
+        if res:
+            raw_text = res[0].get("text", "")
+            parsed = parse_kda_string(raw_text)
+            if parsed:
+                return parsed
+            return raw_text
+    except Exception as e:
+        print(f"[KDA OCR Error] {e}")
+    return None
+
 def extract_digits(text: str, default: int = 0) -> int:
-    """Mengambil angka integer dari string hasil OCR."""
-    clean = re.sub(r'[^0-9]', '', text)
+    """Mengambil angka integer dari string hasil OCR, menangani huruf yang mirip angka."""
+    if not text:
+        return default
+    # Perbaiki huruf yang sering tertukar dengan angka (misal 'g' atau 'q' terbaca sebagai 9, 'O'/'o' sebagai 0)
+    cleaned = text.strip()
+    cleaned = re.sub(r'[gGq]', '9', cleaned)
+    cleaned = re.sub(r'[oOD]', '0', cleaned)
+    cleaned = re.sub(r'[lI|]', '1', cleaned)
+    cleaned = re.sub(r'[sS]', '5', cleaned)
+    cleaned = re.sub(r'[b]', '6', cleaned)
+    clean = re.sub(r'[^0-9]', '', cleaned)
     return int(clean) if clean else default
 
 # Inisialisasi FastAPI
@@ -369,7 +448,7 @@ is_running = True
 # WORKER: CAPTURE & OCR PROCESSING LOOP
 # ==============================================================================
 def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any]] = None):
-    global ocr_data_store, is_running
+    global ocr_data_store, is_running, latest_annotated_frame
     print(f"\n[Worker] Memulai Background Worker pada mode: {capture_mode}...")
 
     # 1. Inisialisasi Sumber Capture
@@ -504,16 +583,51 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                     if res_rg:
                         r_gold_str = parse_gold_display(res_rg[0].get("text", ""), "")
 
-                # 3. BACA KILLS (Blue & Red)
+                # 3. BACA KILLS (Blue & Red - Mendukung 1 digit dan 2 digit angka kill)
                 b_kills = 0
                 c_bk = crop_box("blue_kills")
                 if c_bk is not None:
-                    b_kills = read_single_digit(c_bk)
+                    # Simpan snapshot crop untuk diagnosa jika masih 0
+                    cv2.imwrite("debug_blue_kills.png", c_bk)
+                    
+                    # Prioritas 1: Tesseract dengan whitelist angka 0-9 dan PSM 7 (Sangat akurat untuk angka font MLBB)
+                    try:
+                        import pytesseract
+                        gray = cv2.cvtColor(c_bk, cv2.COLOR_BGR2GRAY)
+                        norm = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
+                        up_t = cv2.resize(norm, (0, 0), fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+                        t_txt = pytesseract.image_to_string(up_t, config='--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789').strip()
+                        if t_txt and t_txt.isdigit():
+                            b_kills = int(t_txt)
+                    except Exception:
+                        pass
+
+                    # Prioritas 2: Apple Vision / Standard recognizer jika Tesseract belum dapat
+                    if b_kills == 0:
+                        up_bk = cv2.resize(c_bk, (0, 0), fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
+                        res_bk = recognize_text_elements(up_bk)
+                        if res_bk:
+                            b_kills = extract_digits(res_bk[0].get("text", ""), 0)
 
                 r_kills = 0
                 c_rk = crop_box("red_kills")
                 if c_rk is not None:
-                    r_kills = read_single_digit(c_rk)
+                    try:
+                        import pytesseract
+                        gray_r = cv2.cvtColor(c_rk, cv2.COLOR_BGR2GRAY)
+                        norm_r = cv2.normalize(gray_r, None, 0, 255, cv2.NORM_MINMAX)
+                        up_tr = cv2.resize(norm_r, (0, 0), fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+                        t_txt_r = pytesseract.image_to_string(up_tr, config='--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789').strip()
+                        if t_txt_r and t_txt_r.isdigit():
+                            r_kills = int(t_txt_r)
+                    except Exception:
+                        pass
+
+                    if r_kills == 0:
+                        up_rk = cv2.resize(c_rk, (0, 0), fx=3, fy=3, interpolation=cv2.INTER_CUBIC)
+                        res_rk = recognize_text_elements(up_rk)
+                        if res_rk:
+                            r_kills = extract_digits(res_rk[0].get("text", ""), 0)
 
                 # 4. BACA OBJECTIVES (Turrets & Turtles)
                 b_turrets = 0
@@ -535,6 +649,17 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                 c_rtur = crop_box("red_turrets")
                 if c_rtur is not None:
                     r_turrets = read_single_digit(c_rtur)
+
+                # 4b. BACA ROI KHUSUS (Termasuk KDA atau ROI bertipe custom lainnya)
+                custom_roi_data = {}
+                for r_name, r_conf in rois.items():
+                    r_type = r_conf.get("type", "")
+                    if r_type == "kda" or "kda" in r_name:
+                        c_kda = crop_box(r_name)
+                        if c_kda is not None:
+                            val_kda = read_kda_text(c_kda)
+                            if val_kda:
+                                custom_roi_data[r_name] = val_kda
 
                 # 5. UPDATE HASIL KE GLOBAL DATA STORE
                 with data_lock:
@@ -568,6 +693,12 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                     ocr_data_store["objectives"]["blue_turtles"] = b_turtles
                     ocr_data_store["objectives"]["red_turtles"] = r_turtles
 
+                    # Simpan data kda / custom rois
+                    if "kda" not in ocr_data_store:
+                        ocr_data_store["kda"] = {}
+                    for k_name, k_val in custom_roi_data.items():
+                        ocr_data_store["kda"][k_name] = k_val
+
                 # 6. RENDER VISUAL PREVIEW ROI (Untuk verifikasi posisi ROI di browser)
                 try:
                     annotated = game_content.copy()
@@ -583,13 +714,8 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                             elif "timer" in roi_key:
                                 color = (0, 255, 0)   # Hijau
 
-                            # Gambar bounding box
+                            # Gambar bounding box kotak saja (bersih tanpa tulisan teks yang menumpuk)
                             cv2.rectangle(annotated, (rx, ry), (rx + rw, ry + rh), color, 2)
-                            # Label nama ROI
-                            label = roi_key.replace("_", " ")
-                            font_sc = max(0.35, 0.45 * scale)
-                            cv2.putText(annotated, label, (rx, max(14, ry - 5)),
-                                        cv2.FONT_HERSHEY_SIMPLEX, font_sc, color, 1, cv2.LINE_AA)
 
                     _, encoded_jpeg = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 80])
                     with frame_lock:
@@ -797,6 +923,46 @@ def roi_checker_ui():
                 <img id="roiPreview" src="/preview/frame.jpg" alt="Live ROI Stream" style="z-index: 1;">
             </div>
 
+            <!-- LIVE DATA OCR STATS & JSON (Tepat di bawah gambar, di atas keterangan panduan) -->
+            <div style="margin-top: 20px; padding: 16px; background: #0f172a; border-radius: 10px; border: 1px solid #334155;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span>📊 Data Hasil Bacaan OCR Real-Time</span>
+                        <span id="dataStatus" style="background: #334155; font-size: 11px; padding: 2px 8px; border-radius: 4px; color: #94a3b8;">Syncing...</span>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b;">Update: <span id="lastUpdated">-</span></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Timer</div>
+                        <div id="statTimer" style="font-size: 18px; font-weight: 700; color: #4ade80;">00:00</div>
+                    </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #38bdf8; text-transform: uppercase;">Blue Kills</div>
+                        <div id="statBlueKills" style="font-size: 18px; font-weight: 700; color: #38bdf8;">0</div>
+                    </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #f87171; text-transform: uppercase;">Red Kills</div>
+                        <div id="statRedKills" style="font-size: 18px; font-weight: 700; color: #f87171;">0</div>
+                    </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #38bdf8; text-transform: uppercase;">Blue Gold</div>
+                        <div id="statBlueGold" style="font-size: 18px; font-weight: 700; color: #38bdf8;">0</div>
+                    </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #f87171; text-transform: uppercase;">Red Gold</div>
+                        <div id="statRedGold" style="font-size: 18px; font-weight: 700; color: #f87171;">0</div>
+                    </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #facc15; text-transform: uppercase;">KDA 1 (Biru)</div>
+                        <div id="statKDA1" style="font-size: 18px; font-weight: 700; color: #facc15;">-</div>
+                    </div>
+                </div>
+
+                <pre id="jsonViewer" style="background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 220px; overflow-y: auto; border: 1px solid #334155;">Memuat data JSON...</pre>
+            </div>
+
             <div class="legend-grid">
                 <div class="legend-item">
                     <span class="dot dot-timer"></span>
@@ -804,11 +970,11 @@ def roi_checker_ui():
                 </div>
                 <div class="legend-item">
                     <span class="dot dot-blue"></span>
-                    <span><strong>Biru Muda:</strong> Tim Biru (Kills, Gold, Turret, Turtle)</span>
+                    <span><strong>Biru Muda:</strong> Tim Biru (Kills, Gold, Turret, Turtle, KDA)</span>
                 </div>
                 <div class="legend-item">
                     <span class="dot dot-red"></span>
-                    <span><strong>Merah:</strong> Tim Merah (Kills, Gold, Turret, Turtle)</span>
+                    <span><strong>Merah:</strong> Tim Merah (Kills, Gold, Turret, Turtle, KDA)</span>
                 </div>
                 <div class="legend-item">
                     <span class="dot dot-yellow"></span>
@@ -818,20 +984,21 @@ def roi_checker_ui():
 
             <div class="info-panel">
                 💡 <strong>Cara Menyesuaikan Koordinat:</strong><br>
-                Jika kotak ROI di atas belum pas di atas teks/angka game, Anda cukup mengedit file <code>roi_config.json</code> (ubah nilai <code>x</code>, <code>y</code>, <code>width</code>, atau <code>height</code>). Skrip akan otomatis membaca koordinat baru setiap frame tanpa perlu restart aplikasi.
+                Jika kotak ROI di atas belum pas di atas teks/angka game, Anda cukup mengedit file <code>roi_config.json</code> (ubah nilai <code>offset_x</code>, <code>y</code>, <code>width</code>, atau <code>height</code>). Skrip otomatis membaca koordinat baru setiap frame tanpa perlu restart aplikasi.
             </div>
         </div>
 
         <script>
             const img = document.getElementById('roiPreview');
             const loading = document.getElementById('loadingText');
+            const jsonViewer = document.getElementById('jsonViewer');
 
             function refreshFrame() {
                 const nextImg = new Image();
                 nextImg.onload = function() {
                     img.src = this.src;
                     loading.style.display = 'none';
-                    setTimeout(refreshFrame, 200);
+                    setTimeout(refreshFrame, 250);
                 };
                 nextImg.onerror = function() {
                     setTimeout(refreshFrame, 500);
@@ -839,8 +1006,39 @@ def roi_checker_ui():
                 nextImg.src = '/preview/frame.jpg?t=' + Date.now();
             }
 
+            async function refreshJsonData() {
+                try {
+                    const res = await fetch('/api/mlbb-data');
+                    if (res.ok) {
+                        const data = await res.json();
+                        jsonViewer.textContent = JSON.stringify(data, null, 2);
+                        
+                        document.getElementById('dataStatus').textContent = data.status || 'OK';
+                        document.getElementById('dataStatus').style.background = '#22c55e22';
+                        document.getElementById('dataStatus').style.color = '#4ade80';
+                        document.getElementById('lastUpdated').textContent = data.last_updated || '-';
+                        
+                        document.getElementById('statTimer').textContent = data.game_timer || '00:00';
+                        document.getElementById('statBlueKills').textContent = data.score?.blue_kills ?? 0;
+                        document.getElementById('statRedKills').textContent = data.score?.red_kills ?? 0;
+                        document.getElementById('statBlueGold').textContent = data.gold?.blue_total ?? '0';
+                        document.getElementById('statRedGold').textContent = data.gold?.red_total ?? '0';
+                        
+                        if (data.kda && data.kda.blue_kda1) {
+                            document.getElementById('statKDA1').textContent = data.kda.blue_kda1;
+                        } else {
+                            document.getElementById('statKDA1').textContent = '-';
+                        }
+                    }
+                } catch (e) {
+                    console.error("Gagal polling JSON", e);
+                }
+                setTimeout(refreshJsonData, 500);
+            }
+
             img.onload = () => { loading.style.display = 'none'; };
             setTimeout(refreshFrame, 200);
+            setTimeout(refreshJsonData, 300);
         </script>
     </body>
     </html>
