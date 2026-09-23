@@ -19,6 +19,16 @@ ROI_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "roi_config.json")
 # Deteksi otomatis path Tesseract di Windows jika terinstall di lokasi standar
 if platform.system() == "Windows":
     try:
+        import ctypes
+        # Set DPI Awareness agar koordinat window tidak meleset/zoom pada monitor scaling (125%, 150%)
+        try:
+            ctypes.windll.shcore.SetProcessDpiAwareness(2) # Per-Monitor DPI Aware
+        except Exception:
+            ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
+    try:
         import pytesseract
         windows_tesseract_paths = [
             r"C:\Program Files\Tesseract-OCR\tesseract.exe",
@@ -368,27 +378,78 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
         except Exception:
             return None
     elif system == "Windows":
-        # Jalur Windows (win32gui / pygetwindow + mss)
-        try:
-            import mss
-            import win32gui
-            hwnd = window_info.get("hwnd") or window_info.get("id")
-            if hwnd and isinstance(hwnd, int):
-                rect = win32gui.GetWindowRect(hwnd)
-                bbox = {"left": rect[0], "top": rect[1], "width": rect[2] - rect[0], "height": rect[3] - rect[1]}
+        # Jalur Windows
+        # 1. Coba PrintWindow via ctypes/win32gui (True background/window capture tanpa tergantung screen desktop)
+        hwnd = window_info.get("hwnd") or window_info.get("id")
+        if hwnd and isinstance(hwnd, int):
+            try:
+                import win32gui
+                import win32ui
+                import win32con
+
+                # Dapatkan ukuran client window (area isi tanpa shadow OS)
+                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
+                w_w = cl_right - cl_left
+                w_h = cl_bottom - cl_top
+
+                if w_w > 50 and w_h > 50:
+                    hwndDC = win32gui.GetWindowDC(hwnd)
+                    mfcDC = win32ui.CreateDCFromHandle(hwndDC)
+                    saveDC = mfcDC.CreateCompatibleDC()
+
+                    saveBitMap = win32ui.CreateBitmap()
+                    saveBitMap.CreateCompatibleBitmap(mfcDC, w_w, w_h)
+                    saveDC.SelectObject(saveBitMap)
+
+                    # PW_RENDERFULLCONTENT (flag 2) untuk hardware-accelerated windows seperti scrcpy/DirectX
+                    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
+                    if result == 0:
+                        # Fallback flag 0 standar
+                        result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 0)
+
+                    if result == 1:
+                        bmpinfo = saveBitMap.GetInfo()
+                        bmpstr = saveBitMap.GetBitmapBits(True)
+                        img = np.frombuffer(bmpstr, dtype=np.uint8).reshape((bmpinfo['bmHeight'], bmpinfo['bmWidth'], 4))
+                        win32gui.DeleteObject(saveBitMap.GetHandle())
+                        saveDC.DeleteDC()
+                        mfcDC.DeleteDC()
+                        win32gui.ReleaseDC(hwnd, hwndDC)
+                        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+
+                    win32gui.DeleteObject(saveBitMap.GetHandle())
+                    saveDC.DeleteDC()
+                    mfcDC.DeleteDC()
+                    win32gui.ReleaseDC(hwnd, hwndDC)
+            except Exception:
+                pass
+
+            # 2. Fallback DWM / ClientToScreen + MSS jika PrintWindow gagal
+            try:
+                import mss
+                import win32gui
+                # Ambil koordinat client window aktual di layar
+                pt_tl = win32gui.ClientToScreen(hwnd, (0, 0))
+                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
+                bbox = {
+                    "left": pt_tl[0],
+                    "top": pt_tl[1],
+                    "width": cl_right - cl_left,
+                    "height": cl_bottom - cl_top
+                }
                 with mss.mss() as sct:
                     img = np.array(sct.grab(bbox))
                     return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-        except Exception:
-            pass
+            except Exception:
+                pass
 
     # Fallback Linux / generic menggunakan mss dan window_obj
     try:
         import mss
-        with mss.mss() as sct:
-            w_obj = window_info.get("window_obj")
-            if w_obj:
-                bbox = {"top": int(w_obj.top), "left": int(w_obj.left), "width": int(w_obj.width), "height": int(w_obj.height)}
+        w_obj = window_info.get("window_obj")
+        if w_obj:
+            bbox = {"top": int(w_obj.top), "left": int(w_obj.left), "width": int(w_obj.width), "height": int(w_obj.height)}
+            with mss.mss() as sct:
                 img = np.array(sct.grab(bbox))
                 return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
     except Exception:
@@ -506,8 +567,11 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                 pre_crop = roi_cfg.get("pre_crop", {})
                 titlebar_h = pre_crop.get("titlebar_height", 0)
 
-                # Hilangkan title bar jika capture berasal dari window macOS
-                game_content = frame[titlebar_h:, :] if titlebar_h > 0 and h > titlebar_h + 100 else frame
+                # Hilangkan title bar jika capture berasal dari window macOS (Windows ClientRect sudah bersih tanpa titlebar)
+                if platform.system() == "Darwin" and titlebar_h > 0 and h > titlebar_h + 100:
+                    game_content = frame[titlebar_h:, :]
+                else:
+                    game_content = frame
                 gh, gw = game_content.shape[:2]
 
                 # Skala adaptif berbasis tinggi game (default 1080p)
