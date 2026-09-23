@@ -427,21 +427,51 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
 
                 # Hilangkan title bar jika capture berasal dari window macOS
                 game_content = frame[titlebar_h:, :] if titlebar_h > 0 and h > titlebar_h + 100 else frame
+                gh, gw = game_content.shape[:2]
 
-                # Normalisasi ke resolusi standar 1920x1080 agar koordinat ROI konsisten
-                game_1080 = cv2.resize(game_content, (1920, 1080))
+                # Skala adaptif berbasis tinggi game (default 1080p)
+                base_h = roi_cfg.get("reference_resolution", {}).get("base_height", 1080)
+                scale = gh / float(base_h) if base_h > 0 else 1.0
+                center_x = gw // 2
+
                 rois = roi_cfg.get("rois", {})
 
-                # Helper crop aman dari dictionary ROI (x, y, width, height)
+                # Helper menghitung koordinat pixel absolut aktual dari konfigurasi ROI
+                def get_roi_rect(roi_key: str, r_def: Dict[str, Any]) -> tuple:
+                    anchor = r_def.get("anchor", "center_top")
+                    rw = int(round(r_def.get("width", 50) * scale))
+                    rh = int(round(r_def.get("height", 40) * scale))
+
+                    # 1. Hitung X
+                    if "offset_x" in r_def:
+                        # Relatif terhadap titik tengah horizontal (center_x)
+                        rx = int(round(center_x + (r_def["offset_x"] * scale) - (rw / 2.0)))
+                    else:
+                        # Fallback koordinat statis x
+                        rx = int(round(r_def.get("x", 0) * scale))
+
+                    # 2. Hitung Y
+                    if anchor == "center_bottom":
+                        if "offset_y" in r_def:
+                            ry = int(round(gh + (r_def["offset_y"] * scale)))
+                        else:
+                            ry = int(round(r_def.get("y", 0) * scale))
+                    else:
+                        ry = int(round(r_def.get("y", 14) * scale))
+
+                    # Boundary checking agar tidak keluar dari frame
+                    rx = max(0, min(rx, gw - rw))
+                    ry = max(0, min(ry, gh - rh))
+                    rw = max(1, min(rw, gw - rx))
+                    rh = max(1, min(rh, gh - ry))
+                    return rx, ry, rw, rh
+
+                # Helper crop aman dari game_content asli tanpa distorsi stretch
                 def crop_box(key: str) -> Optional[np.ndarray]:
                     if key in rois:
-                        r = rois[key]
-                        rx = r.get("x", 0)
-                        ry = r.get("y", 0)
-                        rw = r.get("width", 0)
-                        rh = r.get("height", 0)
+                        rx, ry, rw, rh = get_roi_rect(key, rois[key])
                         if rw > 0 and rh > 0:
-                            return game_1080[ry:ry+rh, rx:rx+rw]
+                            return game_content[ry:ry+rh, rx:rx+rw]
                     return None
 
                 # 1. BACA GAME TIMER
@@ -538,12 +568,9 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
 
                 # 6. RENDER VISUAL PREVIEW ROI (Untuk verifikasi posisi ROI di browser)
                 try:
-                    annotated = game_1080.copy()
+                    annotated = game_content.copy()
                     for roi_key, roi_val in rois.items():
-                        rx = roi_val.get("x", 0)
-                        ry = roi_val.get("y", 0)
-                        rw = roi_val.get("width", 0)
-                        rh = roi_val.get("height", 0)
+                        rx, ry, rw, rh = get_roi_rect(roi_key, roi_val)
                         if rw > 0 and rh > 0:
                             # Warna kotak disesuaikan dengan tipe tim
                             color = (0, 255, 255) # Default kuning
@@ -558,8 +585,9 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                             cv2.rectangle(annotated, (rx, ry), (rx + rw, ry + rh), color, 2)
                             # Label nama ROI
                             label = roi_key.replace("_", " ")
-                            cv2.putText(annotated, label, (rx, max(12, ry - 5)),
-                                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1, cv2.LINE_AA)
+                            font_sc = max(0.35, 0.45 * scale)
+                            cv2.putText(annotated, label, (rx, max(14, ry - 5)),
+                                        cv2.FONT_HERSHEY_SIMPLEX, font_sc, color, 1, cv2.LINE_AA)
 
                     _, encoded_jpeg = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 80])
                     with frame_lock:

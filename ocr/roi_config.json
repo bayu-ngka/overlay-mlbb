@@ -1,81 +1,82 @@
 {
-  "description": "Konfigurasi Region of Interest (ROI) MLBB Spectator Layout per Jenis Data (Resolusi Standar 1920x1080)",
+  "description": "Konfigurasi Region of Interest (ROI) MLBB Spectator Layout berbasis Relative Anchor (Center-Top)",
   "reference_resolution": {
-    "width": 1920,
-    "height": 1080
+    "base_height": 1080,
+    "center_x_base": 960
   },
   "pre_crop": {
-    "description": "Pemotongan title bar scrcpy (28px di macOS) sebelum di-scale ke 1080p",
+    "description": "Pemotongan title bar scrcpy (28px di macOS) jika menggunakan window capture",
     "titlebar_height": 28
   },
   "rois": {
     "game_timer": {
       "description": "Timer pertandingan (tengah atas)",
-      "x": 915,
+      "offset_x": -3,
       "y": 14,
       "width": 85,
       "height": 42
     },
     "blue_kills": {
-      "description": "Total kill Tim Biru (angka di kiri timer)",
-      "x": 860,
+      "description": "Total kill Tim Biru (kiri timer)",
+      "offset_x": -78,
       "y": 14,
       "width": 45,
       "height": 42
     },
     "red_kills": {
-      "description": "Total kill Tim Merah (angka di kanan timer)",
-      "x": 1005,
+      "description": "Total kill Tim Merah (kanan timer)",
+      "offset_x": 68,
       "y": 14,
       "width": 45,
       "height": 42
     },
     "blue_gold": {
       "description": "Total gold Tim Biru (format angka atau k)",
-      "x": 745,
+      "offset_x": -168,
       "y": 14,
       "width": 95,
       "height": 42
     },
     "red_gold": {
       "description": "Total gold Tim Merah (format angka atau k)",
-      "x": 1070,
+      "offset_x": 158,
       "y": 14,
       "width": 95,
       "height": 42
     },
-    "blue_turrets": {
-      "description": "Jumlah turret dihancurkan Tim Biru",
-      "x": 635,
-      "y": 14,
-      "width": 25,
-      "height": 42
-    },
     "blue_turtles": {
       "description": "Jumlah turtle/lord diperoleh Tim Biru",
-      "x": 706,
+      "offset_x": -241,
       "y": 14,
       "width": 26,
       "height": 42
     },
+    "blue_turrets": {
+      "description": "Jumlah turret dihancurkan Tim Biru",
+      "offset_x": -312,
+      "y": 14,
+      "width": 25,
+      "height": 42
+    },
     "red_turtles": {
       "description": "Jumlah turtle/lord diperoleh Tim Merah",
-      "x": 1192,
+      "offset_x": 245,
       "y": 14,
       "width": 26,
       "height": 42
     },
     "red_turrets": {
       "description": "Jumlah turret dihancurkan Tim Merah",
-      "x": 1255,
+      "offset_x": 308,
       "y": 14,
       "width": 25,
       "height": 42
     },
     "scoreboard_players": {
-      "description": "Tabel Scoreboard Bawah (10 player)",
-      "x": 500,
-      "y": 750,
+      "description": "Tabel Scoreboard Bawah (10 player, anchor center-bottom)",
+      "anchor": "center_bottom",
+      "offset_x": 0,
+      "offset_y": -330,
       "width": 920,
       "height": 270
     }
