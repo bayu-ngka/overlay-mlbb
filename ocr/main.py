@@ -405,12 +405,14 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
             frame = capture_window_frame(selected_window)
             if frame is None:
                 # Jendela mungkin diminimize, tertutup, atau tidak dapat di-render
-                time.sleep(0.2)
+                print(f"[Worker] Menunggu frame dari window '{selected_window.get('title', 'Unknown')}'...", end="\r")
+                time.sleep(0.3)
                 continue
         elif capture_mode == 2 and cap:
             ret, frame = cap.read()
             if not ret or frame is None:
-                time.sleep(0.1)
+                print("[Worker] Menunggu video frame dari HDMI Capture...", end="\r")
+                time.sleep(0.2)
                 continue
 
         if frame is not None:
