@@ -297,10 +297,33 @@ def get_available_windows() -> List[Dict[str, Any]]:
                     })
         except Exception as e:
             print(f"[Warning] Gagal mengambil window list via Quartz: {e}")
-    else:
-        # Jalur Windows & Linux
+    elif system == "Windows":
+        # Jalur Windows Native (win32gui): Menjamin HWND window valid dan akurat
         try:
-            # 1. Coba pygetwindow
+            import win32gui
+            def win_enum_callback(hwnd, extra):
+                if win32gui.IsWindowVisible(hwnd):
+                    title = win32gui.GetWindowText(hwnd).strip()
+                    cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
+                    width = cl_right - cl_left
+                    height = cl_bottom - cl_top
+                    # Filter jendela normal (bukan toolbar atau invisible tool window)
+                    if title and width >= 150 and height >= 150:
+                        extra.append({
+                            "id": hwnd,
+                            "hwnd": hwnd,
+                            "title": title,
+                            "owner": "Windows",
+                            "name": title,
+                            "width": width,
+                            "height": height
+                        })
+            win32gui.EnumWindows(win_enum_callback, windows)
+        except Exception as e:
+            print(f"[Warning] Gagal enum windows via win32gui: {e}")
+    else:
+        # Jalur Linux / Generic
+        try:
             import pygetwindow as gw
             all_windows = gw.getAllWindows()
             for i, w in enumerate(all_windows):
@@ -317,30 +340,6 @@ def get_available_windows() -> List[Dict[str, Any]]:
                     })
         except Exception:
             pass
-
-        # 2. Coba Windows native win32gui jika pygetwindow kosong
-        if not windows and system == "Windows":
-            try:
-                import win32gui
-                def win_enum_callback(hwnd, extra):
-                    if win32gui.IsWindowVisible(hwnd):
-                        title = win32gui.GetWindowText(hwnd).strip()
-                        rect = win32gui.GetWindowRect(hwnd)
-                        width = rect[2] - rect[0]
-                        height = rect[3] - rect[1]
-                        if title and width >= 150 and height >= 150:
-                            extra.append({
-                                "id": hwnd,
-                                "title": title,
-                                "owner": "Windows",
-                                "name": title,
-                                "width": width,
-                                "height": height,
-                                "hwnd": hwnd
-                            })
-                win32gui.EnumWindows(win_enum_callback, windows)
-            except Exception:
-                pass
 
     return windows
 
@@ -378,34 +377,15 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
         except Exception:
             return None
     elif system == "Windows":
-        # Jalur Windows (Mengambil area CLIENT murni: tanpa title bar dan tanpa border)
+        # Jalur Windows Murni Window Capture (Bukan Screen Capture)
         hwnd = window_info.get("hwnd") or window_info.get("id")
         if hwnd and isinstance(hwnd, int):
-            # 1. Metode ClientToScreen + MSS: Presisi 100% memotong dari bawah titlebar
-            try:
-                import mss
-                import win32gui
-                pt_tl = win32gui.ClientToScreen(hwnd, (0, 0))
-                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
-                w_w = cl_right - cl_left
-                w_h = cl_bottom - cl_top
-                if w_w > 50 and w_h > 50:
-                    bbox = {
-                        "left": pt_tl[0],
-                        "top": pt_tl[1],
-                        "width": w_w,
-                        "height": w_h
-                    }
-                    with mss.mss() as sct:
-                        img = np.array(sct.grab(bbox))
-                        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-            except Exception:
-                pass
-
-            # 2. Metode PrintWindow (PW_CLIENTONLY) jika didukung
+            # 1. Metode PrintWindow dengan PW_RENDERFULLCONTENT (Capture langsung dari GPU/Window buffer scrcpy)
             try:
                 import win32gui
                 import win32ui
+
+                # Dapatkan ukuran client window (konten game saja tanpa titlebar)
                 cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
                 w_w = cl_right - cl_left
                 w_h = cl_bottom - cl_top
@@ -419,8 +399,15 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
                     saveBitMap.CreateCompatibleBitmap(mfcDC, w_w, w_h)
                     saveDC.SelectObject(saveBitMap)
 
-                    # PW_CLIENTONLY (flag 1) agar murni hanya isi konten game tanpa titlebar
-                    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 1)
+                    # PW_RENDERFULLCONTENT = 2 (Menangkap buffer DirectX/OpenGL scrcpy secara langsung)
+                    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
+                    if result == 0:
+                        # Fallback flag 1 (PW_CLIENTONLY)
+                        result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 1)
+                    if result == 0:
+                        # Fallback flag 0 (Default)
+                        result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 0)
+
                     if result == 1:
                         bmpinfo = saveBitMap.GetInfo()
                         bmpstr = saveBitMap.GetBitmapBits(True)
@@ -429,12 +416,31 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
                         saveDC.DeleteDC()
                         mfcDC.DeleteDC()
                         win32gui.ReleaseDC(hwnd, hwndDC)
+                        # Konversi dari BGRA ke BGR
                         return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
                     win32gui.DeleteObject(saveBitMap.GetHandle())
                     saveDC.DeleteDC()
                     mfcDC.DeleteDC()
                     win32gui.ReleaseDC(hwnd, hwndDC)
+            except Exception:
+                pass
+
+            # 2. Fallback DWM Desktop Cropping HANYA jika PrintWindow tidak didukung driver
+            try:
+                import mss
+                import win32gui
+                # Titik (0, 0) Client Area diubah ke koordinat layar fisik
+                pt = win32gui.ClientToScreen(hwnd, (0, 0))
+                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
+                w_w = cl_right - cl_left
+                w_h = cl_bottom - cl_top
+                if w_w > 50 and w_h > 50:
+                    with mss.mss() as sct:
+                        # Dapatkan monitor tempat window berada
+                        bbox = {"left": int(pt[0]), "top": int(pt[1]), "width": int(w_w), "height": int(w_h)}
+                        img = np.array(sct.grab(bbox))
+                        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
             except Exception:
                 pass
 
