@@ -568,9 +568,16 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                 pre_crop = roi_cfg.get("pre_crop", {})
                 titlebar_h = pre_crop.get("titlebar_height", 0)
 
-                # Hilangkan title bar jika capture berasal dari window macOS (Windows ClientRect sudah bersih tanpa titlebar)
-                if platform.system() == "Darwin" and titlebar_h > 0 and h > titlebar_h + 100:
-                    game_content = frame[titlebar_h:, :]
+                # Pemotongan title bar scrcpy otomatis per platform (macOS: 28px, Windows 11: 32px)
+                if platform.system() == "Darwin":
+                    t_crop = pre_crop.get("titlebar_height_macos", pre_crop.get("titlebar_height", 28))
+                elif platform.system() == "Windows":
+                    t_crop = pre_crop.get("titlebar_height_windows", 32)
+                else:
+                    t_crop = 0
+
+                if t_crop > 0 and h > t_crop + 100:
+                    game_content = frame[t_crop:, :]
                 else:
                     game_content = frame
                 gh, gw = game_content.shape[:2]

@@ -5,7 +5,9 @@
     "center_x_base": 960
   },
   "pre_crop": {
-    "description": "Pemotongan title bar scrcpy (28px di macOS) jika menggunakan window capture",
+    "description": "Pemotongan title bar scrcpy per sistem operasi (macOS: 28px, Windows 11: 32px)",
+    "titlebar_height_macos": 28,
+    "titlebar_height_windows": 32,
     "titlebar_height": 28
   },
   "rois": {
