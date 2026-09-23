@@ -1,0 +1,83 @@
+{
+  "description": "Konfigurasi Region of Interest (ROI) MLBB Spectator Layout per Jenis Data (Resolusi Standar 1920x1080)",
+  "reference_resolution": {
+    "width": 1920,
+    "height": 1080
+  },
+  "pre_crop": {
+    "description": "Pemotongan title bar scrcpy (28px di macOS) sebelum di-scale ke 1080p",
+    "titlebar_height": 28
+  },
+  "rois": {
+    "game_timer": {
+      "description": "Timer pertandingan (tengah atas)",
+      "x": 915,
+      "y": 14,
+      "width": 85,
+      "height": 42
+    },
+    "blue_kills": {
+      "description": "Total kill Tim Biru (angka di kiri timer)",
+      "x": 860,
+      "y": 14,
+      "width": 45,
+      "height": 42
+    },
+    "red_kills": {
+      "description": "Total kill Tim Merah (angka di kanan timer)",
+      "x": 1005,
+      "y": 14,
+      "width": 45,
+      "height": 42
+    },
+    "blue_gold": {
+      "description": "Total gold Tim Biru (format angka atau k)",
+      "x": 745,
+      "y": 14,
+      "width": 95,
+      "height": 42
+    },
+    "red_gold": {
+      "description": "Total gold Tim Merah (format angka atau k)",
+      "x": 1070,
+      "y": 14,
+      "width": 95,
+      "height": 42
+    },
+    "blue_turrets": {
+      "description": "Jumlah turret dihancurkan Tim Biru",
+      "x": 635,
+      "y": 14,
+      "width": 25,
+      "height": 42
+    },
+    "blue_turtles": {
+      "description": "Jumlah turtle/lord diperoleh Tim Biru",
+      "x": 706,
+      "y": 14,
+      "width": 26,
+      "height": 42
+    },
+    "red_turtles": {
+      "description": "Jumlah turtle/lord diperoleh Tim Merah",
+      "x": 1192,
+      "y": 14,
+      "width": 26,
+      "height": 42
+    },
+    "red_turrets": {
+      "description": "Jumlah turret dihancurkan Tim Merah",
+      "x": 1255,
+      "y": 14,
+      "width": 25,
+      "height": 42
+    },
+    "scoreboard_players": {
+      "description": "Tabel Scoreboard Bawah (10 player)",
+      "x": 500,
+      "y": 750,
+      "width": 920,
+      "height": 270
+    }
+  }
+}

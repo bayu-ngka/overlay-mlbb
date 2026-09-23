@@ -1,0 +1,80 @@
+{
+  "draftdata": {
+    "timer": "60",
+    "timerRunning": false,
+    "current_phase": 0,
+    "blueside": {
+      "ban": [
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ],
+      "pick": [
+        {
+          "hero": "/Assets/HeroPick/minotaur.png"
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ]
+    },
+    "redside": {
+      "ban": [
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ],
+      "pick": [
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": "/Assets/HeroPick/minotaur.png"
+        }
+      ]
+    },
+    "timer_running": false
+  }
+}

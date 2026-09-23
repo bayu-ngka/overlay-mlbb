@@ -1,0 +1,209 @@
+{
+  "game_duration": "40:20",
+  "game_number": "1",
+  "teamdata": {
+    "blueteam": {
+      "teamname": "INDONESIA",
+      "score": "0",
+      "logo": "",
+      "totalgold": 0,
+      "turret": 0,
+      "lord": 0,
+      "turtle": 0,
+      "playerlist": [
+        {
+          "name": "vii",
+          "lane": "none",
+          "hero": "Minotaur",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "Inspire",
+          "itemlist": [
+            "Azure Blade",
+            "Brute Force Breastplate",
+            "Dreadnaught Armor",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "Enchanted Talisman",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "Endless Battle",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "Blade Armor",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "Dreadnaught Armor",
+            "Concentrated Energy"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "Vampire Mallet",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        }
+      ]
+    },
+    "redteam": {
+      "teamname": "ddd",
+      "score": "2",
+      "logo": "",
+      "totalgold": 0,
+      "turret": 0,
+      "lord": 0,
+      "turtle": 0,
+      "playerlist": [
+        {
+          "name": "VII",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "Moon",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        }
+      ]
+    }
+  },
+  "winmatches": "blue"
+}

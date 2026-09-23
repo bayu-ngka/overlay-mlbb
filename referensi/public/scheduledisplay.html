@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcement Schedule Display</title>
+    <link rel="stylesheet" href="acdisplay.css">
+    <style>
+        /* CSS INJECTIONS UNTUK ROTASI DAN LAYOUT DINAMIS */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #main-display {
+            transition: opacity 0.5s ease-in-out;
+            opacity: 1;
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            padding: 30px;
+            gap: 40px; /* Jarak default antar schedule box */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Mode Horizontal - Berdampingan (Secara otomatis turun baris bila layar penuh) */
+        #main-display.horizontal {
+            flex-direction: row;
+            flex-wrap: wrap; 
+        }
+
+        /* Mode Vertical - Ditumpuk Atas ke Bawah */
+        #main-display.vertical {
+            flex-direction: column;
+            flex-wrap: nowrap;
+        }
+
+        /* Override `.schedule` base class (menetralisir format absolute bawaan yang merusak Flexbox) */
+        .schedule {
+            position: relative !important;
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-display" class="horizontal"></div>
+
+    <script>
+        let displayConfig = { layout: 'horizontal' };
+        let displayInterval = null;
+        let chunks = [];
+        let currentChunkIndex = 0;
+        const ROTATION_TIME_MS = 10000; // 10 Detik
+
+        // Initial Data Fetch
+        async function fetchInitialData() {
+            try {
+                const res = await fetch('/api/schedule');
+                const data = await res.json();
+                processData(data);
+            } catch (err) {
+                console.error("Failed fetching schedule JSON:", err);
+            }
+        }
+
+        // Memproses data (Ambil hanya yang show = true & potong per-4)
+        function processData(data) {
+            if (data.config) displayConfig = data.config;
+            
+            let activeSchedules = [];
+            const keys = Object.keys(data).filter(k => k !== 'config').map(Number).sort((a,b) => a-b);
+            
+            keys.forEach(k => {
+                if(data[k] && data[k].show) {
+                    activeSchedules.push(data[k]);
+                }
+            });
+
+            // Potong data menjadi chunks kelipatan 4
+            chunks = [];
+            for (let i = 0; i < activeSchedules.length; i += 4) {
+                chunks.push(activeSchedules.slice(i, i + 4));
+            }
+
+            // Reset loop ke awal setiap ada pembaruan
+            currentChunkIndex = 0;
+            startRotation();
+        }
+
+        function renderChunk() {
+            const container = document.getElementById('main-display');
+            
+            // Trigger Animasi Fade Out
+            container.style.opacity = 0; 
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+                
+                // Aplikasikan class untuk Vertical / Horizontal mode
+                container.className = displayConfig.layout;
+
+                // Bangun ulang DOM berdasarkan chunk
+                if (chunks.length > 0 && chunks[currentChunkIndex]) {
+                    chunks[currentChunkIndex].forEach((sched) => {
+                        let logo1 = (sched.logo1 && sched.logo1.length > 50) ? sched.logo1 : 'Assets/Other/transparent.png';
+                        let logo2 = (sched.logo2 && sched.logo2.length > 50) ? sched.logo2 : 'Assets/Other/transparent.png';
+
+                        // Mempertahankan struktur HTML asli `.schedule` milik overlay Anda
+                        let html = `
+                        <div class="schedule">
+                            <div class="time">${sched.time || ''}</div>
+                            <div class="team-container">
+                                <div class="team">
+                                    <div class="logoholder"><img src="${logo1}"></div>
+                                    <div class="teamnameholder">${sched.team1 || ''}</div>
+                                </div>
+                                <div class="scorebox">
+                                    <div class="box"><p>${sched.score1 || '0'}</p></div>
+                                    <div class="box"><h1>VS</h1></div>
+                                    <div class="box"><p>${sched.score2 || '0'}</p></div>
+                                </div>
+                                <div class="team">
+                                    <div class="logoholder"><img src="${logo2}"></div>
+                                    <div class="teamnameholder">${sched.team2 || ''}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                        container.innerHTML += html;
+                    });
+                }
+                
+                // Trigger Animasi Fade In
+                container.style.opacity = 1; 
+            }, 500); // Sinkronkan timeout dengan timer transisi 0.5s CSS
+        }
+
+        // Logika Rotasi Otomatis
+        function startRotation() {
+            if (displayInterval) clearInterval(displayInterval);
+            
+            renderChunk(); // Render grup pertama seketika
+
+            // Kalau grup (chunks) lebih dari 1, jalankan timer 10 detik
+            if (chunks.length > 1) {
+                displayInterval = setInterval(() => {
+                    currentChunkIndex = (currentChunkIndex + 1) % chunks.length;
+                    renderChunk();
+                }, ROTATION_TIME_MS);
+            }
+        }
+
+        // Websocket Listener Khusus (Supaya langsung bereaksi jika ada kiriman)
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        ws.onmessage = (event) => {
+            try {
+                const msg = JSON.parse(event.data);
+                // Menangkap pesan type 'schedule_update' dari server.js
+                if(msg.type === 'schedule_update') {
+                    processData(msg.data);
+                }
+            } catch(e) {}
+        };
+
+        // Inisiasi awal saat diload ke OBS/vMix
+        window.onload = fetchInitialData;
+    </script>
+    
+    <script src="script/acdisplay.js"></script>
+    <script src="crossclient.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "mvp": {
+    "checkboxId": "mvp-blueteam-0",
+    "side": "blue",
+    "nickname": "vii",
+    "heroImg": "Assets/HeroPick/Minotaur.png",
+    "playerPhoto": "Assets/player/vii.png",
+    "stats": {
+      "LVL": 0,
+      "KDA": "0/0/0",
+      "GOLD": 0,
+      "SPELL": "Inspire",
+      "ITEM 1": "Azure Blade",
+      "ITEM 2": "Brute Force Breastplate",
+      "ITEM 3": "Dreadnaught Armor",
+      "ITEM 4": "idle",
+      "ITEM 5": "idle",
+      "ITEM 6": "idle"
+    }
+  }
+}
