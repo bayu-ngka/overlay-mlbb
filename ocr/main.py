@@ -368,23 +368,42 @@ def get_available_cameras() -> List[Dict[str, Any]]:
         except Exception:
             pass
     elif system == "Windows":
+        # Prioritas 1: pygrabber (DirectShow enumeration - memetakan index DirectShow ke nama kamera 1:1)
         try:
-            import subprocess
-            # Query PnP Entity untuk nama kamera / virtual video driver
-            ps_cmd = 'Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPClass -eq "Camera" -or $_.PNPClass -eq "Image" } | Select-Object -ExpandProperty Name'
-            out = subprocess.check_output(['powershell', '-NoProfile', '-Command', ps_cmd], text=True, stderr=subprocess.DEVNULL)
-            for line in out.splitlines():
-                name = line.strip()
-                if name:
-                    cam_names.append(name)
+            from pygrabber.dshow_graph import FilterGraph
+            graph = FilterGraph()
+            dshow_devices = graph.get_input_devices()
+            if dshow_devices:
+                cam_names = dshow_devices
         except Exception:
             pass
 
-    # 2. Cek ketersediaan indeks VideoCapture (0 sampai 7)
-    for idx in range(8):
+        # Prioritas 2: PowerShell Get-PnpDevice (Hanya device yang status OK dan bukan printer/scanner scanner WIA)
+        if not cam_names:
+            try:
+                import subprocess
+                ps_cmd = 'Get-PnpDevice -PresentOnly -Class Camera | Where-Object { $_.Status -eq "OK" } | Select-Object -ExpandProperty FriendlyName'
+                out = subprocess.check_output(['powershell', '-NoProfile', '-Command', ps_cmd], text=True, stderr=subprocess.DEVNULL)
+                for line in out.splitlines():
+                    name = line.strip()
+                    if name:
+                        cam_names.append(name)
+            except Exception:
+                pass
+
+    # 2. Cek ketersediaan indeks VideoCapture (0 sampai 9)
+    # Matikan sementara log berisik OpenCV saat scanning kamera
+    prev_log_level = cv2.getLogLevel() if hasattr(cv2, "getLogLevel") else None
+    if hasattr(cv2, "setLogLevel"):
+        cv2.setLogLevel(0) # 0 = SILENT
+
+    backend = cv2.CAP_DSHOW if system == "Windows" else cv2.CAP_ANY
+
+    for idx in range(10):
         try:
-            cap = cv2.VideoCapture(idx)
+            cap = cv2.VideoCapture(idx, backend)
             if cap.isOpened():
+                ret, _ = cap.read()
                 # Dapatkan nama dari deteksi sistem jika ada
                 if idx < len(cam_names):
                     device_name = cam_names[idx]
@@ -402,6 +421,9 @@ def get_available_cameras() -> List[Dict[str, Any]]:
                 cap.release()
         except Exception:
             pass
+
+    if hasattr(cv2, "setLogLevel") and prev_log_level is not None:
+        cv2.setLogLevel(prev_log_level)
 
     return cameras
 
@@ -590,7 +612,8 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
         device_index = camera_device.get("index", 0) if camera_device else 0
         device_name = camera_device.get("name", f"Camera #{device_index}") if camera_device else f"Camera #{device_index}"
         
-        cap = cv2.VideoCapture(device_index)
+        backend = cv2.CAP_DSHOW if platform.system() == "Windows" else cv2.CAP_ANY
+        cap = cv2.VideoCapture(device_index, backend)
         if not cap.isOpened():
             print(f"[Worker Error] Gagal membuka video capture device '{device_name}' (Index: {device_index})")
             return
