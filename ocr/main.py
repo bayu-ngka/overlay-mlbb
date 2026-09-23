@@ -6,7 +6,8 @@ import json
 import numpy as np
 import cv2
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import platform
@@ -359,6 +360,8 @@ ocr_data_store = {
 
 # Lock untuk keamanan akses variabel global antar thread
 data_lock = threading.Lock()
+frame_lock = threading.Lock()
+latest_annotated_frame: Optional[bytes] = None
 is_running = True
 
 
@@ -532,6 +535,38 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                     ocr_data_store["objectives"]["red_turrets"] = r_turrets
                     ocr_data_store["objectives"]["blue_turtles"] = b_turtles
                     ocr_data_store["objectives"]["red_turtles"] = r_turtles
+
+                # 6. RENDER VISUAL PREVIEW ROI (Untuk verifikasi posisi ROI di browser)
+                try:
+                    annotated = game_1080.copy()
+                    for roi_key, roi_val in rois.items():
+                        rx = roi_val.get("x", 0)
+                        ry = roi_val.get("y", 0)
+                        rw = roi_val.get("width", 0)
+                        rh = roi_val.get("height", 0)
+                        if rw > 0 and rh > 0:
+                            # Warna kotak disesuaikan dengan tipe tim
+                            color = (0, 255, 255) # Default kuning
+                            if "blue" in roi_key:
+                                color = (255, 200, 0) # Cyan/Biru muda di BGR
+                            elif "red" in roi_key:
+                                color = (50, 50, 255) # Merah di BGR
+                            elif "timer" in roi_key:
+                                color = (0, 255, 0)   # Hijau
+
+                            # Gambar bounding box
+                            cv2.rectangle(annotated, (rx, ry), (rx + rw, ry + rh), color, 2)
+                            # Label nama ROI
+                            label = roi_key.replace("_", " ")
+                            cv2.putText(annotated, label, (rx, max(12, ry - 5)),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1, cv2.LINE_AA)
+
+                    _, encoded_jpeg = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                    with frame_lock:
+                        latest_annotated_frame = encoded_jpeg.tobytes()
+                except Exception as e_prev:
+                    print(f"[Preview Render Error] {e_prev}")
+
             except Exception as e:
                 print(f"[Worker OCR Error] {e}")
 
@@ -551,7 +586,9 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
 def index():
     return {
         "message": "MLBB OCR Service is running",
-        "endpoint": "/api/mlbb-data"
+        "api_data": "/api/mlbb-data",
+        "roi_checker": "/roi-checker",
+        "live_stream": "/preview/stream"
     }
 
 @app.get("/api/mlbb-data")
@@ -561,6 +598,202 @@ def get_mlbb_data():
     """
     with data_lock:
         return ocr_data_store
+
+@app.get("/preview/frame.jpg")
+def get_preview_frame():
+    """
+    Mengembalikan 1 snapshot JPEG dari frame dengan visualisasi kotak ROI
+    """
+    with frame_lock:
+        if latest_annotated_frame is None:
+            return Response(content=b"", status_code=503)
+        return Response(content=latest_annotated_frame, media_type="image/jpeg")
+
+def generate_mjpeg_stream():
+    """Generator untuk live MJPEG stream"""
+    while is_running:
+        with frame_lock:
+            frame_data = latest_annotated_frame
+        if frame_data is not None:
+            yield (b"--frame\r\n"
+                   b"Content-Type: image/jpeg\r\n\r\n" + frame_data + b"\r\n")
+        time.sleep(0.1)
+
+@app.get("/preview/stream")
+def get_preview_stream():
+    """
+    Live Video Stream MJPEG yang bisa dibuka langsung di browser atau OBS Browser Source
+    """
+    return StreamingResponse(
+        generate_mjpeg_stream(),
+        media_type="multipart/x-mixed-replace; boundary=frame"
+    )
+
+@app.get("/roi-checker", response_class=HTMLResponse)
+def roi_checker_ui():
+    """
+    Halaman web interaktif untuk memonitor kotak ROI secara realtime
+    """
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MLBB OCR - Live ROI Checker</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+                background: #0f172a;
+                color: #f8fafc;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+                padding: 24px;
+            }
+            .header {
+                max-width: 1200px;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .badge {
+                background: #22c55e;
+                color: #0f172a;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 4px 8px;
+                border-radius: 6px;
+                text-transform: uppercase;
+            }
+            .card {
+                background: #1e293b;
+                border-radius: 14px;
+                border: 1px solid #334155;
+                padding: 16px;
+                max-width: 1200px;
+                width: 100%;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+            .stream-container {
+                position: relative;
+                width: 100%;
+                border-radius: 10px;
+                overflow: hidden;
+                background: #000;
+                aspect-ratio: 16 / 9;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .stream-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+            .legend-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 12px;
+                margin-top: 20px;
+            }
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 13px;
+                background: #0f172a;
+                padding: 10px 14px;
+                border-radius: 8px;
+                border: 1px solid #334155;
+            }
+            .dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+                flex-shrink: 0;
+            }
+            .dot-blue { background: #38bdf8; }
+            .dot-red { background: #f87171; }
+            .dot-timer { background: #4ade80; }
+            .dot-yellow { background: #facc15; }
+            .info-panel {
+                margin-top: 16px;
+                padding: 14px;
+                background: #0f172a;
+                border-radius: 8px;
+                border-left: 4px solid #38bdf8;
+                font-size: 13px;
+                color: #94a3b8;
+                line-height: 1.6;
+            }
+            code {
+                background: #1e293b;
+                color: #e2e8f0;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="title">
+                <span>🎯 Live ROI Position Checker</span>
+                <span class="badge">Live 1080p</span>
+            </div>
+            <div>
+                <a href="/api/mlbb-data" target="_blank" style="color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 600;">Lihat Data JSON ↗</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stream-container">
+                <img src="/preview/stream" alt="Live ROI Stream" onerror="this.src='/preview/frame.jpg?t=' + Date.now();">
+            </div>
+
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <span class="dot dot-timer"></span>
+                    <span><strong>Hijau:</strong> Game Timer</span>
+                </div>
+                <div class="legend-item">
+                    <span class="dot dot-blue"></span>
+                    <span><strong>Biru Muda:</strong> Tim Biru (Kills, Gold, Turret, Turtle)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="dot dot-red"></span>
+                    <span><strong>Merah:</strong> Tim Merah (Kills, Gold, Turret, Turtle)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="dot dot-yellow"></span>
+                    <span><strong>Kuning:</strong> Scoreboard / Object Lain</span>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                💡 <strong>Cara Menyesuaikan Koordinat:</strong><br>
+                Jika kotak ROI di atas belum pas di atas teks/angka game, Anda cukup mengedit file <code>roi_config.json</code> (ubah nilai <code>x</code>, <code>y</code>, <code>width</code>, atau <code>height</code>). Skrip akan otomatis membaca koordinat baru setiap frame tanpa perlu restart aplikasi.
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 
 # ==============================================================================
@@ -619,7 +852,8 @@ if __name__ == "__main__":
 
     # 2. Jalankan HTTP API Server dengan Uvicorn di Thread Utama
     print("\n[Server] Menjalankan API Server di http://localhost:8000 ...")
-    print("[Server] Data JSON tersedia di: http://localhost:8000/api/mlbb-data")
+    print("[Server] Data JSON API    : http://localhost:8000/api/mlbb-data")
+    print("[Server] Live ROI Checker : http://localhost:8000/roi-checker  <-- Buka di browser untuk cek kotak ROI!")
     print("[Server] Tekan CTRL+C di terminal untuk menghentikan program.\n")
 
     try:
