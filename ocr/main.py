@@ -378,22 +378,40 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
         except Exception:
             return None
     elif system == "Windows":
-        # Jalur Windows
-        # 1. Coba PrintWindow via ctypes/win32gui (True background/window capture tanpa tergantung screen desktop)
+        # Jalur Windows (Mengambil area CLIENT murni: tanpa title bar dan tanpa border)
         hwnd = window_info.get("hwnd") or window_info.get("id")
         if hwnd and isinstance(hwnd, int):
+            # 1. Metode ClientToScreen + MSS: Presisi 100% memotong dari bawah titlebar
+            try:
+                import mss
+                import win32gui
+                pt_tl = win32gui.ClientToScreen(hwnd, (0, 0))
+                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
+                w_w = cl_right - cl_left
+                w_h = cl_bottom - cl_top
+                if w_w > 50 and w_h > 50:
+                    bbox = {
+                        "left": pt_tl[0],
+                        "top": pt_tl[1],
+                        "width": w_w,
+                        "height": w_h
+                    }
+                    with mss.mss() as sct:
+                        img = np.array(sct.grab(bbox))
+                        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+            except Exception:
+                pass
+
+            # 2. Metode PrintWindow (PW_CLIENTONLY) jika didukung
             try:
                 import win32gui
                 import win32ui
-                import win32con
-
-                # Dapatkan ukuran client window (area isi tanpa shadow OS)
                 cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
                 w_w = cl_right - cl_left
                 w_h = cl_bottom - cl_top
 
                 if w_w > 50 and w_h > 50:
-                    hwndDC = win32gui.GetWindowDC(hwnd)
+                    hwndDC = win32gui.GetDC(hwnd)
                     mfcDC = win32ui.CreateDCFromHandle(hwndDC)
                     saveDC = mfcDC.CreateCompatibleDC()
 
@@ -401,12 +419,8 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
                     saveBitMap.CreateCompatibleBitmap(mfcDC, w_w, w_h)
                     saveDC.SelectObject(saveBitMap)
 
-                    # PW_RENDERFULLCONTENT (flag 2) untuk hardware-accelerated windows seperti scrcpy/DirectX
-                    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 2)
-                    if result == 0:
-                        # Fallback flag 0 standar
-                        result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 0)
-
+                    # PW_CLIENTONLY (flag 1) agar murni hanya isi konten game tanpa titlebar
+                    result = ctypes.windll.user32.PrintWindow(hwnd, saveDC.GetSafeHdc(), 1)
                     if result == 1:
                         bmpinfo = saveBitMap.GetInfo()
                         bmpstr = saveBitMap.GetBitmapBits(True)
@@ -421,25 +435,6 @@ def capture_window_frame(window_info: Dict[str, Any]) -> Optional[np.ndarray]:
                     saveDC.DeleteDC()
                     mfcDC.DeleteDC()
                     win32gui.ReleaseDC(hwnd, hwndDC)
-            except Exception:
-                pass
-
-            # 2. Fallback DWM / ClientToScreen + MSS jika PrintWindow gagal
-            try:
-                import mss
-                import win32gui
-                # Ambil koordinat client window aktual di layar
-                pt_tl = win32gui.ClientToScreen(hwnd, (0, 0))
-                cl_left, cl_top, cl_right, cl_bottom = win32gui.GetClientRect(hwnd)
-                bbox = {
-                    "left": pt_tl[0],
-                    "top": pt_tl[1],
-                    "width": cl_right - cl_left,
-                    "height": cl_bottom - cl_top
-                }
-                with mss.mss() as sct:
-                    img = np.array(sct.grab(bbox))
-                    return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
             except Exception:
                 pass
 
