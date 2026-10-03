@@ -35,7 +35,16 @@ Aplikasi broadcast overlay profesional untuk turnamen Mobile Legends: Bang Bang 
 
 ---
 
-### Langkah-langkah Instalasi
+### Cara Paling Mudah di Windows (1 Klik)
+Cukup **klik dua kali (double click) file `start_server.bat`** di folder utama proyek!
+- Script `.bat` akan otomatis memeriksa apakah **Node.js** sudah terpasang.
+- Jika Node.js belum ada, script akan memberi petunjuk unduh langsung ke situs resminya.
+- Script akan memeriksa apakah paket `node_modules` (express, cors, ws) sudah lengkap. Jika belum, script otomatis menjalankan `npm install`.
+- Setelah itu, server langsung aktif di port 4000 dan halaman **Control Hub** otomatis terbuka di browser Anda.
+
+---
+
+### Langkah-langkah Manual (Command Line)
 
 #### 1. Clone atau Salin Folder Proyek
 Buka terminal / Command Prompt (CMD / PowerShell):

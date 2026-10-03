@@ -7,5 +7,6 @@
   "mapName": "BROKEN WALL",
   "timerCutout": false,
   "sponsorMode": "auto",
-  "activeSponsorId": null
+  "activeSponsorId": null,
+  "ocrUrl": "http://localhost:14337/MLBB.json"
 }
