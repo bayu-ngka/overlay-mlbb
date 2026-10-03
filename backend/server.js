@@ -35,7 +35,8 @@ const defaultControlState = {
   mapName: "BROKEN WALL",
   timerCutout: false,    // true: tembus pandang in-game, false: normal
   sponsorMode: "auto",   // auto: rotasi, atau id sponsor
-  activeSponsorId: null
+  activeSponsorId: null,
+  ocrUrl: "http://192.168.43.253:14337/MLBB.json" // URL JSON endpoint OCR (LAN / Localhost)
 };
 
 // Default initial draft state (10 Ban, 10 Pick resmi MLBB)
@@ -327,10 +328,16 @@ app.post('/api/match/:matchId', (req, res) => {
 
 // OCR Relay endpoint: mem-proxy request ke OCR engine (IP LAN atau localhost)
 app.get('/api/ocr', async (req, res) => {
-  const ocrCandidates = [
+  const configuredUrl = currentControlState.ocrUrl ? currentControlState.ocrUrl.trim() : '';
+  const ocrCandidates = [];
+  if (configuredUrl) {
+    ocrCandidates.push(configuredUrl);
+  }
+  ocrCandidates.push(
     'http://192.168.43.253:14337/MLBB.json',
-    'http://localhost:14337/MLBB.json'
-  ];
+    'http://localhost:14337/MLBB.json',
+    'http://127.0.0.1:14337/MLBB.json'
+  );
 
   try {
     const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));

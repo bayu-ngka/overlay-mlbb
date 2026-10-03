@@ -1200,6 +1200,14 @@
                 </svg>
                 BAN / PICK
             </button>
+
+            <button class="menu-btn" id="tab-settings" onclick="switchNav('settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                SETTINGS
+            </button>
         </nav>
 
         <div class="sidebar-footer">
@@ -1382,6 +1390,62 @@
 
                     <div class="draft-btn-actions" id="draft-action-buttons">
                         <!-- Dinamis sesuai target slot aktif -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 3: SETTINGS & OCR INTEGRATION                      -->
+        <!-- ======================================================== -->
+        <section id="view-settings" class="view-section">
+            <div class="control-grid">
+                <!-- 1. OCR JSON ENDPOINT CONFIG -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <span class="card-title" style="margin-bottom: 0;">⚙️ Konfigurasi OCR Game In-Game Engine</span>
+                        <span class="badge-live" id="ocr-status-indicator" style="background: rgba(148, 163, 184, 0.2); color: #94A3B8;">STANDBY</span>
+                    </div>
+
+                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                        Masukkan alamat URL / link file JSON hasil pembacaan OCR in-game MLBB (misal: <code>http://192.168.1.100:14337/MLBB.json</code> atau <code>http://localhost:14337/MLBB.json</code>).
+                        Data ini digunakan oleh overlay Scoreboard (<code>sb1.html</code>) untuk pembacaan gold, kill, turret, lord, dan in-game timer.
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <label for="input-ocr-url">Link URL Endpoint JSON OCR:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="input-ocr-url" placeholder="http://192.168.43.253:14337/MLBB.json" style="flex: 1; font-family: monospace;">
+                            <button class="btn-action btn-primary" style="width: auto; padding: 10px 24px;" onclick="saveOcrSettings()">
+                                SIMPAN LINK OCR
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Test Connection Box -->
+                    <div style="background-color: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 12px; font-weight: 800; color: #fff;">LIVE TEST PING OCR KONEKSI</span>
+                            <button class="timer-btn" onclick="testOcrConnection()">⚡ TEST KONEKSI SEKARANG</button>
+                        </div>
+                        <div id="ocr-test-result" style="font-family: monospace; font-size: 11px; color: var(--text-muted); white-space: pre-wrap; word-break: break-all;">
+Belum ada tes koneksi. Klik tombol di atas untuk mengetes respon link OCR.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. PETUNJUK DEPLOY PC LAIN -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <span class="card-title">📖 Panduan Memasang di PC Lain</span>
+                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.8;">
+                        <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+                            <li>Pastikan PC tujuan sudah terpasang <strong>Node.js</strong> (minimal v18+).</li>
+                            <li>Clone repositori ini: <code>git clone git@github.com:bayu-ngka/overlay-mlbb.git</code></li>
+                            <li>Buka folder project: <code>cd overlay-mlbb/backend</code></li>
+                            <li>Install dependensi: <code>npm install</code></li>
+                            <li>Jalankan server: <code>node server.js</code></li>
+                            <li>Buka di browser: <code>http://localhost:4000/control.html</code> untuk Control Hub, dan pasang Browser Source di OBS dengan URL <code>http://localhost:4000/bp1.html</code> (Draft) & <code>http://localhost:4000/sb1.html</code> (Scoreboard).</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -1589,6 +1653,57 @@
             document.getElementById('val-win-right').textContent = state.winRight || 0;
             document.getElementById('select-map').value = state.mapName || 'BROKEN WALL';
             document.getElementById('check-cutout').checked = Boolean(state.timerCutout);
+
+            const ocrInput = document.getElementById('input-ocr-url');
+            if (ocrInput && state.ocrUrl !== undefined && !ocrInput.matches(':focus')) {
+                ocrInput.value = state.ocrUrl;
+            }
+        }
+
+        // ==========================================
+        // 2B. OCR SETTINGS & PING TEST
+        // ==========================================
+        function saveOcrSettings() {
+            const input = document.getElementById('input-ocr-url');
+            if (!input) return;
+            const newUrl = input.value.trim();
+            sendWS('UPDATE_CONTROL', { ocrUrl: newUrl });
+            alert("Pengaturan Link JSON OCR berhasil disimpan!");
+            testOcrConnection();
+        }
+
+        async function testOcrConnection() {
+            const resEl = document.getElementById('ocr-test-result');
+            const statusBadge = document.getElementById('ocr-status-indicator');
+            if (resEl) resEl.innerHTML = "⏳ Menghubungi endpoint OCR via proxy backend...";
+
+            try {
+                const res = await fetch(`/api/ocr?t=${Date.now()}`);
+                const data = await res.json();
+                if (resEl) {
+                    resEl.innerHTML = `✅ RESPON DITERIMA DARI OCR (Status HTTP ${res.status}):\n` + JSON.stringify(data, null, 2);
+                }
+                if (statusBadge) {
+                    if (data.status === 'ocr_standby') {
+                        statusBadge.textContent = 'OCR STANDBY';
+                        statusBadge.style.background = 'rgba(234, 179, 8, 0.2)';
+                        statusBadge.style.color = '#FACC15';
+                    } else {
+                        statusBadge.textContent = 'OCR TERHUBUNG';
+                        statusBadge.style.background = 'rgba(34, 197, 94, 0.2)';
+                        statusBadge.style.color = '#4ADE80';
+                    }
+                }
+            } catch (err) {
+                if (resEl) {
+                    resEl.innerHTML = `❌ GAGAL MENGHUBUNGI OCR: ${err.message}`;
+                }
+                if (statusBadge) {
+                    statusBadge.textContent = 'OCR OFFLINE';
+                    statusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                    statusBadge.style.color = '#F87171';
+                }
+            }
         }
 
         function setBO(boNum) { sendWS('UPDATE_CONTROL', { bo: Number(boNum) }); }

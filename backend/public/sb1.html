@@ -1021,6 +1021,9 @@
                                     setTeamNames(state.teamLeft, state.teamRight);
                                 }
                                 if (state.timerCutout !== undefined) setTimerCutout(state.timerCutout);
+                                if (state.ocrUrl !== undefined && state.ocrUrl) {
+                                    activeOcrUrl = state.ocrUrl;
+                                }
                             }
                             if (payload.type === 'INIT_STATE' && payload.currentSponsor && payload.currentSponsor.sponsor) {
                                 currentSponsorIndex = payload.currentSponsor.index || 0;
@@ -1053,6 +1056,7 @@
         // =========================================================
         const OCR_POLL_INTERVAL = 1000; // Poll setiap 1 detik
         const DEFAULT_OCR_URL = 'http://192.168.43.253:14337/MLBB.json';
+        let activeOcrUrl = DEFAULT_OCR_URL;
 
         // State filter validasi (mencegah lonjakan aneh dari OCR)
         const lastValid = {
@@ -1279,8 +1283,8 @@
         }
 
         async function fetchMLBBData() {
-            // Prioritas URL: URL dari query param ?ocr=... atau default LAN atau proxy /api/ocr
-            const targetUrl = urlParams.get('ocr') || DEFAULT_OCR_URL;
+            // Prioritas URL: URL dari query param ?ocr=... atau activeOcrUrl dari Control Panel atau fallback ke proxy /api/ocr
+            const targetUrl = urlParams.get('ocr') || activeOcrUrl || DEFAULT_OCR_URL;
 
             let data = null;
 
