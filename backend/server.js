@@ -442,9 +442,28 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
+  const os = require('os');
+  const networkInterfaces = os.networkInterfaces();
+  const lanIps = [];
+
+  Object.keys(networkInterfaces).forEach((ifaceName) => {
+    networkInterfaces[ifaceName].forEach((iface) => {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        lanIps.push(iface.address);
+      }
+    });
+  });
+
   console.log(`=======================================================`);
   console.log(`🚀 ESPORT OVERLAY SERVER AKTIF DI PORT: ${PORT}`);
-  console.log(`📡 URL OBS Scoreboard: http://localhost:${PORT}/overlay/scoreboard/match1`);
+  console.log(`📡 Localhost : http://localhost:${PORT}/control.html`);
+  if (lanIps.length > 0) {
+    lanIps.forEach(ip => {
+      console.log(`🌐 Akses LAN  : http://${ip}:${PORT}/control.html`);
+    });
+  }
+  console.log(`📡 Overlay BP : http://localhost:${PORT}/bp1.html`);
+  console.log(`📡 Scoreboard : http://localhost:${PORT}/sb1.html`);
   console.log(`=======================================================`);
 });

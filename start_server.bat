@@ -56,9 +56,16 @@ if %NEED_INSTALL% equ 1 (
 :: 5. Jalankan server dan buka browser kontrol secara otomatis
 echo ========================================================
 echo   MENJALANKAN SERVER OVERLAY DI PORT 4000...
+echo   (Siap diakses dari Localhost maupun IP Jaringan LAN / Wi-Fi)
 echo ========================================================
 echo.
-echo URL yang tersedia:
+echo Catatan untuk Akses dari Luar / PC Lain / HP di LAN:
+echo   - Jika muncul popup 'Windows Defender Firewall', klik 'Allow access'
+echo     pada Private Networks agar PC lain dapat terhubung.
+echo   - Buka Control Hub atau Overlay menggunakan IP komputer ini,
+echo     misal: http://[IP-KOMPUTER]:4000/control.html
+echo.
+echo URL Lokal:
 echo   - Control Hub : http://localhost:4000/control.html
 echo   - Overlay BP  : http://localhost:4000/bp1.html
 echo   - Scoreboard  : http://localhost:4000/sb1.html
