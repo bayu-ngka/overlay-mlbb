@@ -40,7 +40,7 @@ Cukup **klik dua kali (double click) file `start_server.bat`** di folder utama p
 - Script `.bat` akan otomatis memeriksa apakah **Node.js** sudah terpasang.
 - Jika Node.js belum ada, script akan memberi petunjuk unduh langsung ke situs resminya.
 - Script akan memeriksa apakah paket `node_modules` (express, cors, ws) sudah lengkap. Jika belum, script otomatis menjalankan `npm install`.
-- Setelah itu, server langsung aktif di port 4000 dan halaman **Control Hub** otomatis terbuka di browser Anda.
+- Setelah itu, server langsung aktif di port 8055 dan halaman **Control Hub** otomatis terbuka di browser Anda.
 
 ---
 
@@ -67,8 +67,9 @@ node server.js
 Jika berhasil, akan muncul output:
 ```text
 =======================================================
-🚀 ESPORT OVERLAY SERVER AKTIF DI PORT: 4000
-📡 URL OBS Scoreboard: http://localhost:4000/overlay/scoreboard/match1
+🚀 ESPORT OVERLAY SERVER AKTIF DI PORT: 8055
+📡 Localhost : http://localhost:8055/control.html
+🌐 Akses LAN  : http://[IP-KOMPUTER]:8055/control.html
 =======================================================
 ```
 
@@ -78,14 +79,14 @@ Jika berhasil, akan muncul output:
 
 | Halaman | URL Lokal | Keterangan |
 | :--- | :--- | :--- |
-| **Control Hub** | `http://localhost:4000/control.html` | Buka di browser admin / operator turnamen. |
-| **Overlay Ban & Pick** | `http://localhost:4000/bp1.html` | Tambahkan sebagai **Browser Source** di OBS (Ukuran: 1920 x 1080). |
-| **Overlay Scoreboard** | `http://localhost:4000/sb1.html` | Tambahkan sebagai **Browser Source** di OBS (Ukuran: 1920 x 1080). |
+| **Control Hub** | `http://localhost:8055/control.html` | Buka di browser admin / operator turnamen. |
+| **Overlay Ban & Pick** | `http://localhost:8055/bp1.html` | Tambahkan sebagai **Browser Source** di OBS (Ukuran: 1920 x 1080). |
+| **Overlay Scoreboard** | `http://localhost:8055/sb1.html` | Tambahkan sebagai **Browser Source** di OBS (Ukuran: 1920 x 1080). |
 
 ---
 
 ## ⚙️ Menghubungkan OCR Game In-Game
-1. Buka Control Hub di browser: `http://localhost:4000/control.html`.
+1. Buka Control Hub di browser: `http://localhost:8055/control.html`.
 2. Klik menu **SETTINGS** di sidebar sebelah kiri.
 3. Masukkan URL endpoint OCR Anda (contoh: `http://192.168.1.100:14337/MLBB.json` atau `http://localhost:14337/MLBB.json`).
 4. Klik **SIMPAN LINK OCR**.
@@ -96,5 +97,5 @@ Jika berhasil, akan muncul output:
 ## 🌐 Menjalankan Melalui Jaringan LAN (PC Operator & PC OBS Berbeda)
 Jika PC Operator Control Hub berbeda dengan PC OBS:
 1. Cari IP Address PC tempat server `server.js` berjalan (misal: `192.168.1.50`).
-2. Di PC Operator, buka browser: `http://192.168.1.50:4000/control.html`.
-3. Di PC OBS, masukkan URL Browser Source: `http://192.168.1.50:4000/bp1.html` atau `http://192.168.1.50:4000/sb1.html`.
+2. Di PC Operator, buka browser: `http://192.168.1.50:8055/control.html`.
+3. Di PC OBS, masukkan URL Browser Source: `http://192.168.1.50:8055/bp1.html` atau `http://192.168.1.50:8055/sb1.html`.

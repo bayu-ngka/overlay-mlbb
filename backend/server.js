@@ -7,7 +7,7 @@ const WebSocket = require('ws');
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8055;
 
 // Setup WebSocket Server
 const wss = new WebSocket.Server({ server });
