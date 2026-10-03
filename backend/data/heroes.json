@@ -1,0 +1,1126 @@
+[
+  {
+    "id": "aamon",
+    "name": "Aamon",
+    "roles": [
+      "Assassin",
+      "Mage"
+    ],
+    "image": "/assets/heroes/aamon.png"
+  },
+  {
+    "id": "akai",
+    "name": "Akai",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/akai.png"
+  },
+  {
+    "id": "aldous",
+    "name": "Aldous",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/aldous.png"
+  },
+  {
+    "id": "alice",
+    "name": "Alice",
+    "roles": [
+      "Mage",
+      "Tank"
+    ],
+    "image": "/assets/heroes/alice.png"
+  },
+  {
+    "id": "alpha",
+    "name": "Alpha",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/alpha.png"
+  },
+  {
+    "id": "alucard",
+    "name": "Alucard",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/alucard.png"
+  },
+  {
+    "id": "angela",
+    "name": "Angela",
+    "roles": [
+      "Support"
+    ],
+    "image": "/assets/heroes/angela.png"
+  },
+  {
+    "id": "argus",
+    "name": "Argus",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/argus.png"
+  },
+  {
+    "id": "arlot",
+    "name": "Arlott",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/arlot.png"
+  },
+  {
+    "id": "atlas",
+    "name": "Atlas",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/atlas.png"
+  },
+  {
+    "id": "aulus",
+    "name": "Aulus",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/aulus.png"
+  },
+  {
+    "id": "aurora",
+    "name": "Aurora",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/aurora.png"
+  },
+  {
+    "id": "badang",
+    "name": "Badang",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/badang.png"
+  },
+  {
+    "id": "balmond",
+    "name": "Balmond",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/balmond.png"
+  },
+  {
+    "id": "bane",
+    "name": "Bane",
+    "roles": [
+      "Fighter",
+      "Mage"
+    ],
+    "image": "/assets/heroes/bane.png"
+  },
+  {
+    "id": "barats",
+    "name": "Barats",
+    "roles": [
+      "Tank",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/barats.png"
+  },
+  {
+    "id": "baxia",
+    "name": "Baxia",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/baxia.png"
+  },
+  {
+    "id": "beatrix",
+    "name": "Beatrix",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/beatrix.png"
+  },
+  {
+    "id": "beleric",
+    "name": "Belerick",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/beleric.png"
+  },
+  {
+    "id": "benedetta",
+    "name": "Benedetta",
+    "roles": [
+      "Assassin",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/benedetta.png"
+  },
+  {
+    "id": "brody",
+    "name": "Brody",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/brody.png"
+  },
+  {
+    "id": "bruno",
+    "name": "Bruno",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/bruno.png"
+  },
+  {
+    "id": "carmila",
+    "name": "Carmilla",
+    "roles": [
+      "Support",
+      "Tank"
+    ],
+    "image": "/assets/heroes/carmila.png"
+  },
+  {
+    "id": "cecilion",
+    "name": "Cecilion",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/cecilion.png"
+  },
+  {
+    "id": "change",
+    "name": "Chang'e",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/chang'e.png"
+  },
+  {
+    "id": "chip",
+    "name": "Chip",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/chip.png"
+  },
+  {
+    "id": "chou",
+    "name": "Chou",
+    "roles": [
+      "Fighter",
+      "Support"
+    ],
+    "image": "/assets/heroes/chou.png"
+  },
+  {
+    "id": "cici",
+    "name": "Cici",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/cici.png"
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/claude.png"
+  },
+  {
+    "id": "clint",
+    "name": "Clint",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/clint.png"
+  },
+  {
+    "id": "cyclops",
+    "name": "Cyclops",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/cyclops.png"
+  },
+  {
+    "id": "diggie",
+    "name": "Diggie",
+    "roles": [
+      "Support"
+    ],
+    "image": "/assets/heroes/diggie.png"
+  },
+  {
+    "id": "dyroth",
+    "name": "Dyrroth",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/dyroth.png"
+  },
+  {
+    "id": "edith",
+    "name": "Edith",
+    "roles": [
+      "Tank",
+      "Marksman"
+    ],
+    "image": "/assets/heroes/edith.png"
+  },
+  {
+    "id": "esmeralda",
+    "name": "Esmeralda",
+    "roles": [
+      "Mage",
+      "Tank"
+    ],
+    "image": "/assets/heroes/esmeralda.png"
+  },
+  {
+    "id": "estes",
+    "name": "Estes",
+    "roles": [
+      "Support"
+    ],
+    "image": "/assets/heroes/estes.png"
+  },
+  {
+    "id": "eudora",
+    "name": "Eudora",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/eudora.png"
+  },
+  {
+    "id": "fanny",
+    "name": "Fanny",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/fanny.png"
+  },
+  {
+    "id": "faramis",
+    "name": "Faramis",
+    "roles": [
+      "Mage",
+      "Support"
+    ],
+    "image": "/assets/heroes/faramis.png"
+  },
+  {
+    "id": "floryn",
+    "name": "Floryn",
+    "roles": [
+      "Support"
+    ],
+    "image": "/assets/heroes/floryn.png"
+  },
+  {
+    "id": "franco",
+    "name": "Franco",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/franco.png"
+  },
+  {
+    "id": "fredrin",
+    "name": "Fredrinn",
+    "roles": [
+      "Tank",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/fredrin.png"
+  },
+  {
+    "id": "freya",
+    "name": "Freya",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/freya.png"
+  },
+  {
+    "id": "gatotkaca",
+    "name": "Gatotkaca",
+    "roles": [
+      "Tank",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/gatotkaca.png"
+  },
+  {
+    "id": "gloo",
+    "name": "Gloo",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/gloo.png"
+  },
+  {
+    "id": "gord",
+    "name": "Gord",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/gord.png"
+  },
+  {
+    "id": "granger",
+    "name": "Granger",
+    "roles": [
+      "Marksman",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/granger.png"
+  },
+  {
+    "id": "grock",
+    "name": "Grock",
+    "roles": [
+      "Tank",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/grock.png"
+  },
+  {
+    "id": "guinevere",
+    "name": "Guinevere",
+    "roles": [
+      "Fighter",
+      "Mage"
+    ],
+    "image": "/assets/heroes/guinevere.png"
+  },
+  {
+    "id": "gusion",
+    "name": "Gusion",
+    "roles": [
+      "Assassin",
+      "Mage"
+    ],
+    "image": "/assets/heroes/gusion.png"
+  },
+  {
+    "id": "hanabi",
+    "name": "Hanabi",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/hanabi.png"
+  },
+  {
+    "id": "hanzo",
+    "name": "Hanzo",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/hanzo.png"
+  },
+  {
+    "id": "harith",
+    "name": "Harith",
+    "roles": [
+      "Mage",
+      "Marksman"
+    ],
+    "image": "/assets/heroes/harith.png"
+  },
+  {
+    "id": "harley",
+    "name": "Harley",
+    "roles": [
+      "Mage",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/harley.png"
+  },
+  {
+    "id": "hayabusa",
+    "name": "Hayabusa",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/hayabusa.png"
+  },
+  {
+    "id": "helcurt",
+    "name": "Helcurt",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/helcurt.png"
+  },
+  {
+    "id": "hilda",
+    "name": "Hilda",
+    "roles": [
+      "Fighter",
+      "Tank"
+    ],
+    "image": "/assets/heroes/hilda.png"
+  },
+  {
+    "id": "hirara",
+    "name": "Hirara",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/hirara.png"
+  },
+  {
+    "id": "hylos",
+    "name": "Hylos",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/hylos.png"
+  },
+  {
+    "id": "irithel",
+    "name": "Irithel",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/irithel.png"
+  },
+  {
+    "id": "ixia",
+    "name": "Ixia",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/ixia.png"
+  },
+  {
+    "id": "jawhead",
+    "name": "Jawhead",
+    "roles": [
+      "Fighter",
+      "Tank"
+    ],
+    "image": "/assets/heroes/jawhead.png"
+  },
+  {
+    "id": "johnson",
+    "name": "Johnson",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/johnson.png"
+  },
+  {
+    "id": "joy",
+    "name": "Joy",
+    "roles": [
+      "Assassin",
+      "Mage"
+    ],
+    "image": "/assets/heroes/joy.png"
+  },
+  {
+    "id": "julian",
+    "name": "Julian",
+    "roles": [
+      "Fighter",
+      "Mage"
+    ],
+    "image": "/assets/heroes/julian.png"
+  },
+  {
+    "id": "kadita",
+    "name": "Kadita",
+    "roles": [
+      "Mage",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/kadita.png"
+  },
+  {
+    "id": "kagura",
+    "name": "Kagura",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/kagura.png"
+  },
+  {
+    "id": "kaja",
+    "name": "Kaja",
+    "roles": [
+      "Fighter",
+      "Support"
+    ],
+    "image": "/assets/heroes/kaja.png"
+  },
+  {
+    "id": "kalea",
+    "name": "Kalea",
+    "roles": [
+      "Support",
+      "Mage"
+    ],
+    "image": "/assets/heroes/kalea.png"
+  },
+  {
+    "id": "karina",
+    "name": "Karina",
+    "roles": [
+      "Assassin",
+      "Mage"
+    ],
+    "image": "/assets/heroes/karina.png"
+  },
+  {
+    "id": "karrie",
+    "name": "Karrie",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/karrie.png"
+  },
+  {
+    "id": "khaleed",
+    "name": "Khaleed",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/khaleed.png"
+  },
+  {
+    "id": "khufra",
+    "name": "Khufra",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/khufra.png"
+  },
+  {
+    "id": "kimmy",
+    "name": "Kimmy",
+    "roles": [
+      "Marksman",
+      "Mage"
+    ],
+    "image": "/assets/heroes/kimmy.png"
+  },
+  {
+    "id": "lancelot",
+    "name": "Lancelot",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/lancelot.png"
+  },
+  {
+    "id": "lapulapu",
+    "name": "Lapu-Lapu",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/lapu lapu.png"
+  },
+  {
+    "id": "layla",
+    "name": "Layla",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/layla.png"
+  },
+  {
+    "id": "leomord",
+    "name": "Leomord",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/leomord.png"
+  },
+  {
+    "id": "lesley",
+    "name": "Lesley",
+    "roles": [
+      "Marksman",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/lesley.png"
+  },
+  {
+    "id": "ling",
+    "name": "Ling",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/ling.png"
+  },
+  {
+    "id": "lolita",
+    "name": "Lolita",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/lolita.png"
+  },
+  {
+    "id": "lukas",
+    "name": "Lukas",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/lukas.png"
+  },
+  {
+    "id": "lunox",
+    "name": "Lunox",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/lunox.png"
+  },
+  {
+    "id": "luoyi",
+    "name": "Luo Yi",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/luo yi.png"
+  },
+  {
+    "id": "lylia",
+    "name": "Lylia",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/lylia.png"
+  },
+  {
+    "id": "marcel",
+    "name": "Marcel",
+    "roles": [
+      "Tank",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/marcel.png"
+  },
+  {
+    "id": "martis",
+    "name": "Martis",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/martis.png"
+  },
+  {
+    "id": "masha",
+    "name": "Masha",
+    "roles": [
+      "Fighter",
+      "Tank"
+    ],
+    "image": "/assets/heroes/masha.png"
+  },
+  {
+    "id": "mathilda",
+    "name": "Mathilda",
+    "roles": [
+      "Support",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/mathilda.png"
+  },
+  {
+    "id": "melissa",
+    "name": "Melissa",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/melissa.png"
+  },
+  {
+    "id": "minotaur",
+    "name": "Minotaur",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/minotaur.png"
+  },
+  {
+    "id": "minsitthar",
+    "name": "Minsitthar",
+    "roles": [
+      "Fighter",
+      "Support"
+    ],
+    "image": "/assets/heroes/minsitthar.png"
+  },
+  {
+    "id": "miya",
+    "name": "Miya",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/miya.png"
+  },
+  {
+    "id": "moskov",
+    "name": "Moskov",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/moskov.png"
+  },
+  {
+    "id": "nana",
+    "name": "Nana",
+    "roles": [
+      "Mage",
+      "Support"
+    ],
+    "image": "/assets/heroes/nana.png"
+  },
+  {
+    "id": "natalia",
+    "name": "Natalia",
+    "roles": [
+      "Assassin",
+      "Support"
+    ],
+    "image": "/assets/heroes/natalia.png"
+  },
+  {
+    "id": "natan",
+    "name": "Natan",
+    "roles": [
+      "Marksman",
+      "Mage"
+    ],
+    "image": "/assets/heroes/natan.png"
+  },
+  {
+    "id": "nolan",
+    "name": "Nolan",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/nolan.png"
+  },
+  {
+    "id": "novaria",
+    "name": "Novaria",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/novaria.png"
+  },
+  {
+    "id": "obsidia",
+    "name": "Obsidia",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/obsidia.png"
+  },
+  {
+    "id": "odette",
+    "name": "Odette",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/odette.png"
+  },
+  {
+    "id": "paquito",
+    "name": "Paquito",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/paquito.png"
+  },
+  {
+    "id": "pharsa",
+    "name": "Pharsa",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/pharsa.png"
+  },
+  {
+    "id": "phoveus",
+    "name": "Phoveus",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/phoveus.png"
+  },
+  {
+    "id": "popolandkupa",
+    "name": "Popol And Kupa",
+    "roles": [
+      "Marksman",
+      "Support"
+    ],
+    "image": "/assets/heroes/popol and kupa.png"
+  },
+  {
+    "id": "rafaela",
+    "name": "Rafaela",
+    "roles": [
+      "Support"
+    ],
+    "image": "/assets/heroes/rafaela.png"
+  },
+  {
+    "id": "roger",
+    "name": "Roger",
+    "roles": [
+      "Marksman",
+      "Fighter"
+    ],
+    "image": "/assets/heroes/roger.png"
+  },
+  {
+    "id": "ruby",
+    "name": "Ruby",
+    "roles": [
+      "Fighter",
+      "Tank"
+    ],
+    "image": "/assets/heroes/ruby.png"
+  },
+  {
+    "id": "saber",
+    "name": "Saber",
+    "roles": [
+      "Assassin"
+    ],
+    "image": "/assets/heroes/saber.png"
+  },
+  {
+    "id": "selena",
+    "name": "Selena",
+    "roles": [
+      "Assassin",
+      "Mage"
+    ],
+    "image": "/assets/heroes/selena.png"
+  },
+  {
+    "id": "silvanna",
+    "name": "Silvanna",
+    "roles": [
+      "Fighter",
+      "Mage"
+    ],
+    "image": "/assets/heroes/silvanna.png"
+  },
+  {
+    "id": "sora",
+    "name": "Sora",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/sora.png"
+  },
+  {
+    "id": "sun",
+    "name": "Sun",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/sun.png"
+  },
+  {
+    "id": "suyou",
+    "name": "Suyou",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/suyou.png"
+  },
+  {
+    "id": "terizla",
+    "name": "Terizla",
+    "roles": [
+      "Fighter",
+      "Tank"
+    ],
+    "image": "/assets/heroes/terizla.png"
+  },
+  {
+    "id": "thamuz",
+    "name": "Thamuz",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/thamuz.png"
+  },
+  {
+    "id": "tigreal",
+    "name": "Tigreal",
+    "roles": [
+      "Tank",
+      "Support"
+    ],
+    "image": "/assets/heroes/tigreal.png"
+  },
+  {
+    "id": "uranus",
+    "name": "Uranus",
+    "roles": [
+      "Tank"
+    ],
+    "image": "/assets/heroes/uranus.png"
+  },
+  {
+    "id": "vale",
+    "name": "Vale",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/vale.png"
+  },
+  {
+    "id": "valentina",
+    "name": "Valentina",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/valentina.png"
+  },
+  {
+    "id": "valir",
+    "name": "Valir",
+    "roles": [
+      "Mage",
+      "Support"
+    ],
+    "image": "/assets/heroes/valir.png"
+  },
+  {
+    "id": "vexana",
+    "name": "Vexana",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/vexana.png"
+  },
+  {
+    "id": "wanwan",
+    "name": "Wanwan",
+    "roles": [
+      "Marksman"
+    ],
+    "image": "/assets/heroes/wanwan.png"
+  },
+  {
+    "id": "xborg",
+    "name": "X.Borg",
+    "roles": [
+      "Fighter",
+      "Mage"
+    ],
+    "image": "/assets/heroes/xborg.png"
+  },
+  {
+    "id": "xavier",
+    "name": "Xavier",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/xavier.png"
+  },
+  {
+    "id": "yisunshin",
+    "name": "Yi Sun-shin",
+    "roles": [
+      "Marksman",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/yisunshin.png"
+  },
+  {
+    "id": "yin",
+    "name": "Yin",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/yin.png"
+  },
+  {
+    "id": "yuzhong",
+    "name": "Yu Zhong",
+    "roles": [
+      "Fighter"
+    ],
+    "image": "/assets/heroes/yuzhong.png"
+  },
+  {
+    "id": "yve",
+    "name": "Yve",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/yve.png"
+  },
+  {
+    "id": "zetian",
+    "name": "Zetian",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/zetian.png"
+  },
+  {
+    "id": "zhask",
+    "name": "Zhask",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/zhask.png"
+  },
+  {
+    "id": "zhuxin",
+    "name": "Zhuxin",
+    "roles": [
+      "Mage"
+    ],
+    "image": "/assets/heroes/zhuxin.png"
+  },
+  {
+    "id": "zilong",
+    "name": "Zilong",
+    "roles": [
+      "Fighter",
+      "Assassin"
+    ],
+    "image": "/assets/heroes/zilong.png"
+  }
+]

@@ -23,7 +23,7 @@
       ],
       "pick": [
         {
-          "hero": "/Assets/HeroPick/minotaur.png"
+          "hero": ""
         },
         {
           "hero": ""
@@ -71,7 +71,7 @@
           "hero": ""
         },
         {
-          "hero": "/Assets/HeroPick/minotaur.png"
+          "hero": ""
         }
       ]
     },

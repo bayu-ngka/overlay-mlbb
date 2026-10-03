@@ -3,8 +3,8 @@
   "game_number": "1",
   "teamdata": {
     "blueteam": {
-      "teamname": "INDONESIA",
-      "score": "0",
+      "teamname": "",
+      "score": "",
       "logo": "",
       "totalgold": 0,
       "turret": 0,
@@ -12,9 +12,9 @@
       "turtle": 0,
       "playerlist": [
         {
-          "name": "vii",
+          "name": "",
           "lane": "none",
-          "hero": "Minotaur",
+          "hero": "",
           "banhero": "",
           "level": "13",
           "gold": 0,
@@ -31,7 +31,7 @@
         },
         {
           "name": "",
-          "lane": "gold",
+          "lane": "none",
           "hero": "",
           "banhero": "",
           "level": 0,
@@ -104,8 +104,8 @@
       ]
     },
     "redteam": {
-      "teamname": "ddd",
-      "score": "2",
+      "teamname": "",
+      "score": "",
       "logo": "",
       "totalgold": 0,
       "turret": 0,
@@ -113,42 +113,6 @@
       "turtle": 0,
       "playerlist": [
         {
-          "name": "VII",
-          "lane": "none",
-          "hero": "",
-          "banhero": "",
-          "level": 0,
-          "gold": 0,
-          "KDA": "0/0/0",
-          "spell": "",
-          "itemlist": [
-            "idle",
-            "idle",
-            "idle",
-            "idle",
-            "idle",
-            "idle"
-          ]
-        },
-        {
-          "name": "Moon",
-          "lane": "none",
-          "hero": "",
-          "banhero": "",
-          "level": 0,
-          "gold": 0,
-          "KDA": "0/0/0",
-          "spell": "",
-          "itemlist": [
-            "idle",
-            "idle",
-            "idle",
-            "idle",
-            "idle",
-            "idle"
-          ]
-        },
-        {
           "name": "",
           "lane": "none",
           "hero": "",
@@ -187,7 +151,43 @@
         {
           "name": "",
           "lane": "none",
-          "hero": "Minotaur",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
+          "banhero": "",
+          "level": 0,
+          "gold": 0,
+          "KDA": "0/0/0",
+          "spell": "",
+          "itemlist": [
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle",
+            "idle"
+          ]
+        },
+        {
+          "name": "",
+          "lane": "none",
+          "hero": "",
           "banhero": "",
           "level": 0,
           "gold": 0,

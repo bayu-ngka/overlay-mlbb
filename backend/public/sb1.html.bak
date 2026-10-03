@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <title>Scoreboard Design 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Space+Mono:wght@700&family=Teko:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Gravtrac';
+            src: url('/assets/Font/Gravtrac%20Bd%20Comp.otf') format('opentype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        :root {
+            /* Warna Tema Kuning Golkar */
+            --golkar-yellow: #FFD100;
+            --golkar-gold: #F5B400;
+            --golkar-dark-gold: #B45309;
+
+            /* Warna Tim & Pertandingan */
+            --team-blue: #0284C7;
+            --team-red: #E11924;
+
+            /* Warna Netral & Background */
+            --bg-dark: #0B0E14;
+            --bg-card: #181E29;
+            --bg-white: #FFFFFF;
+            --bg-cream: #FFFFCC;
+            --border-color: #E2E8F0;
+            --text-dark: #0F172A;
+            --text-white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            background-color: transparent;
+        }
+
+        /* Area 1 (Skor, Logo & Area 2 di dalamnya): tinggi 95px, overflow visible agar logo bisa keluar */
+        #area1 {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 95px;
+            background-color: var(--golkar-yellow);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0;
+            overflow: visible;
+            /* Penting agar logo bisa sedikit keluar di bawah */
+            z-index: 20;
+        }
+
+        /* Pattern background tipis/halus di Area 1 (MPL / Esport geometric chevron & diamond) */
+        #area1::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            /* Hanya di bagian atas (di atas Area 2) */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%23B45309' fill-opacity='0.13'%3E%3Cpolygon points='12,2 22,12 12,22 2,12'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-position: center top;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Row untuk skor Tim A dan Tim B di bagian atas area1 (tinggi 70px) */
+        .score-row {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Mode Lubang / Transparan (In-game Timer Passthrough):
+           Membuat celah tembus pandang di tengah Area 1 dan pattern-nya selebar 88px, tinggi 42px */
+        #area1.timer-cutout {
+            -webkit-mask-image: linear-gradient(to right,
+                    #000 0px,
+                    #000 calc(50% - 44px),
+                    transparent calc(50% - 44px),
+                    transparent calc(50% + 44px),
+                    #000 calc(50% + 44px),
+                    #000 100%),
+                linear-gradient(to bottom,
+                    transparent 0px,
+                    transparent 44px,
+                    #000 44px,
+                    #000 100%);
+            -webkit-mask-composite: source-over, source-over;
+            mask-image: linear-gradient(to right,
+                    #000 0px,
+                    #000 calc(50% - 44px),
+                    transparent calc(50% - 44px),
+                    transparent calc(50% + 44px),
+                    #000 calc(50% + 44px),
+                    #000 100%),
+                linear-gradient(to bottom,
+                    transparent 0px,
+                    transparent 44px,
+                    #000 44px,
+                    #000 100%);
+            mask-composite: add;
+        }
+
+        /* Jika mode cutout aktif, sembunyikan teks timer HTML */
+        #area1.timer-cutout #timer-text {
+            display: none !important;
+        }
+
+        /* Timer di tengah atas, tepat di atas logo Tebo */
+        #timer-text {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: #451A03;
+            letter-spacing: 1px;
+            text-align: center;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            z-index: 101;
+            /* Berada di layer atas */
+            background: rgba(255, 209, 0, 0.7);
+            /* Background halus menyatu dengan warna kuning */
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* Spacer tengah di .score-row agar kedua skor tetap simetris */
+        .timer-spacer {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+        }
+
+        /* Skor Tim A dan Tim B: masing-masing mengisi penuh sayap kiri & kanan, teks persis rata tengah di area tersebut */
+        .score-box {
+            font-family: 'Gravtrac', 'Teko', sans-serif;
+            font-size: 58px;
+            font-weight: bold;
+            line-height: 1;
+            letter-spacing: 0.5px;
+            color: #451A03;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            user-select: none;
+            padding-bottom: 2px;
+            height: 70px;
+        }
+
+        /* Logo Tebo: tepat di bawah timer, di depan area2 dan sedikit keluar di bawah */
+        .logo-tebo {
+            position: absolute;
+            top: 45px;
+            /* Berada persis di bawah timer */
+            left: 50%;
+            transform: translateX(-50%);
+            max-height: 90px;
+            max-width: 85px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* Area 2: sekarang berada di dalam #area1, menempel di bagian bawah (tinggi 25px) */
+        #area2 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background-color: var(--bg-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 50;
+        }
+
+        /* Series score BO3 (bulatan indikator mepet ke kiri dan kanan) */
+        .series-dots-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .series-dots-group.left {
+            justify-content: flex-start;
+        }
+
+        .series-dots-group.right {
+            justify-content: flex-end;
+        }
+
+        /* Berbentuk bulatan */
+        .series-bar {
+            width: 12px;
+            height: 12px;
+            background-color: #D1D5DB;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        /* Jika tim menang game: bulatan berubah menjadi merah menyala */
+        .series-bar.won {
+            background-color: var(--golkar-yellow);
+            /* box-shadow: 0 0 6px rgba(225, 25, 36, 0.6); */
+        }
+
+        /* Area 3 (Gold Tim Kiri): rata kanan, nempel di sisi kiri area2 */
+        /* Kotak Persegi 70px di sebelah kiri Area 7 (margin-right: 450px + 95px = 545px) */
+        #flag-box-left {
+            position: absolute;
+            top: 0;
+            right: 50%;
+            margin-right: 545px;
+            width: 75px;
+            height: 75px;
+            background-color: var(--bg-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-right: 1px solid var(--border-color);
+            z-index: 30;
+        }
+
+        /* Bulatan Merah Putih di dalam kotak 70px */
+        .flag-circle-id {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            border: 1.5px solid #E2E8F0;
+        }
+
+        .flag-circle-id .flag-red {
+            width: 100%;
+            height: 50%;
+            background-color: #EF4444;
+        }
+
+        .flag-circle-id .flag-white {
+            width: 100%;
+            height: 50%;
+            background-color: #FFFFFF;
+        }
+
+        /* Area 7: Persegi (95x95px) Tim Biru di sisi paling kiri luar Area 5 (150px + 300px = 450px) */
+        #area7 {
+            position: absolute;
+            top: 0;
+            right: 50%;
+            margin-right: 450px;
+            /* Menempel persis di sisi luar kiri Area 5 */
+            width: 95px;
+            height: 95px;
+            background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+            border-left: 0 solid #38BDF8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Gravtrac', 'Teko', sans-serif;
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--text-white);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+            z-index: 30;
+        }
+
+        /* Area 8: Persegi (95x95px) Tim Merah di sisi paling kanan luar Area 6 (150px + 300px = 450px) */
+        #area8 {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            margin-left: 450px;
+            /* Menempel persis di sisi luar kanan Area 6 */
+            width: 95px;
+            height: 95px;
+            background: linear-gradient(135deg, #E11924 0%, #991B1B 100%);
+            border-right: 0 solid #F87171;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Gravtrac', 'Teko', sans-serif;
+            font-size: 42px;
+            font-weight: bold;
+            color: var(--text-white);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(225, 25, 36, 0.4);
+            z-index: 30;
+        }
+
+        /* Area 3 (Gold Tim Kiri): kembali menempel ke sisi kiri area2 (margin 150px) */
+        #area3 {
+            position: absolute;
+            top: 70px;
+            right: 50%;
+            margin-right: 150px;
+            width: 300px;
+            height: 25px;
+            background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.5));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 14px;
+            gap: 6px;
+        }
+
+        /* Area 4 (Gold Tim Kanan): kembali menempel ke sisi kanan area2 (margin 150px) */
+        #area4 {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            margin-left: 150px;
+            width: 300px;
+            height: 25px;
+            background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.5));
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 14px;
+            gap: 6px;
+        }
+
+        /* Wrapper isi gold (icon + angka) */
+        .gold-lead-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Icon Koin Emas */
+        .gold-icon {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            filter: drop-shadow(0 1px 3px rgba(245, 180, 0, 0.6));
+        }
+
+        /* Teks Angka Gold: Kuning Emas Elegan & Tegas */
+        .gold-amount {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--golkar-yellow);
+            letter-spacing: 0.5px;
+            line-height: 1;
+            text-shadow: 0 0 8px rgba(255, 209, 0, 0.4);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Class utility untuk menyembunyikan elemen */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Area 5: Stats Tim Biru (Kiri), nempel di sisi kiri Area 1 */
+        #area5 {
+            position: absolute;
+            top: 0;
+            right: 50%;
+            margin-right: 150px;
+            width: 300px;
+            height: 70px;
+            background-color: var(--bg-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 0 10px;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Area 6: Stats Tim Merah (Kanan), nempel di sisi kanan Area 1 */
+        #area6 {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            margin-left: 150px;
+            width: 300px;
+            height: 70px;
+            background-color: var(--bg-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 0 10px;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Item Objektif Ingame (Icon + Angka) */
+        .objective-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Icon SVG Turret, Turtle, Lord, Gold Circle: Ukuran diperbesar proporsional */
+        .obj-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.25));
+        }
+
+        /* Angka Nilai Objektif: Gaya Monospace / Courier New (Space Mono) */
+        .obj-val {
+            font-family: 'Space Mono', 'Courier New', Courier, monospace;
+            font-size: 26px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -1px;
+        }
+
+        .obj-val.gold-text {
+            font-size: 25px;
+            letter-spacing: -1px;
+        }
+
+        /* =========================================================
+           SPONSOR & MATCH INFO CARD (SEBELAH AREA 8 S.D. UJUNG LAYAR)
+           Posisi: dari sisi kanan Area 8 (left: 50% + 545px = 1505px) sampai ujung kanan screen (1920px). Lebar total = 415px
+           ========================================================= */
+        #sponsor-card {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 415px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 30;
+            box-shadow: none;
+            /* Bayangan dihilangkan */
+        }
+
+        /* Baris Atas Kartu Sponsor (Tinggi 120px) */
+        .sponsor-top-row {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: stretch;
+            background-color: var(--bg-white);
+            border-bottom: none;
+        }
+
+        /* Area 9: Sponsor Logo Area (Kiri dari kartu sponsor) */
+        #area9 {
+            flex: 1.3;
+            background-color: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Label sponsor di atas (misal SPONSORED BY, DIDUKUNG OLEH) */
+        #sponsor-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #64748B;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            transition: opacity 0.3s ease;
+        }
+
+        #sponsor-label.hidden {
+            display: none;
+        }
+
+        /* Wadah logo dinamis */
+        #sponsor-logos-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            width: 100%;
+            height: 100%;
+            max-height: 96px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        #sponsor-logos-container.fade-out {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+
+        #sponsor-logos-container img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+        }
+
+        /* Ketika 2 logo berdampingan */
+        #sponsor-logos-container.two-logos img {
+            max-width: 48%;
+            max-height: 85%;
+        }
+
+        /* Area 10: Pita Vertikal Merah (misal: "REGULAR SEASON") */
+        #area10 {
+            width: 32px;
+            background-color: var(--team-red);
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        /* Kolom Kanan Baris Atas (Menampung Area 11 & Area 12) */
+        .match-meta-col {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Area 11: Info Turnamen & Match (Tinggi 48px) */
+        #area11 {
+            height: 48px;
+            background-color: var(--bg-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Area 12: Sub-badge Gelap (misal: "FLYING CLOUD") (Tinggi 22px) */
+        #area12 {
+            height: 22px;
+            background-color: #334155;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* Area 13: Baris Bawah Kanan (Tinggi 25px, sejajar Area 2/3/4) */
+        #area13 {
+            width: 100%;
+            height: 25px;
+            background-color: rgba(15, 23, 42, 0.3);
+            /* Opacity gelap tipis sekali */
+            backdrop-filter: blur(4px);
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #area13 .bo-tag {
+            color: var(--golkar-yellow);
+            font-weight: 900;
+        }
+
+        #area13 .map-tag {
+            color: #FFFFFF;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        #area13 .divider-tag {
+            opacity: 0.35;
+            font-size: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="scoreboard">
+        <!-- AREA 5: STATS TIM BIRU (KIRI) -> Turtle, Lord, Turret, Gold -->
+        <div id="area5">
+            <!-- Turtle -->
+            <div class="objective-item" title="Turtle Biru">
+                <img class="obj-icon" src="/assets/mpl_icons/turtle.svg" alt="Turtle">
+                <span class="obj-val" id="blue-turtle">0</span>
+            </div>
+            <!-- Lord -->
+            <div class="objective-item" title="Lord Biru">
+                <img class="obj-icon" src="/assets/mpl_icons/lord.svg" alt="Lord">
+                <span class="obj-val" id="blue-lord">0</span>
+            </div>
+            <!-- Turret -->
+            <div class="objective-item" title="Turret Biru">
+                <img class="obj-icon" src="/assets/mpl_icons/turret.svg" alt="Turret">
+                <span class="obj-val" id="blue-turret">0</span>
+            </div>
+            <!-- Gold -->
+            <div class="objective-item" title="Gold Biru">
+                <img class="obj-icon" src="/assets/mpl_icons/gold_circle.svg" alt="Gold">
+                <span class="obj-val gold-text" id="blue-gold">9999</span>
+            </div>
+        </div>
+
+        <!-- AREA 3 (CONTAINER TETAP ADA DENGAN GRADASI BACKGROUND) -->
+        <div id="area3">
+            <div class="gold-lead-content" id="gold-content-left">
+                <span class="gold-amount" id="gold-diff-left">+1.7K</span>
+                <img class="gold-icon" src="/assets/gold.png" alt="Gold">
+            </div>
+        </div>
+
+        <!-- KOTAK BENDERA INDONESIA: PERSEGI 70px DI SEBELAH KIRI AREA 7 -->
+        <div id="flag-box-left" title="Indonesia">
+            <div class="flag-circle-id">
+                <div class="flag-red"></div>
+                <div class="flag-white"></div>
+            </div>
+        </div>
+
+        <!-- AREA 7: INISIAL TIM A (KIRI, MENEMPEL KE SISI LUAR AREA 5) -->
+        <div id="area7">TLI</div>
+
+        <!-- AREA 8: INISIAL TIM B (KANAN, MENEMPEL KE AREA 6) -->
+        <div id="area8">ONI</div>
+
+        <!-- =========================================================
+             SEBELAH AREA 8 S.D. PENGHABISAN SCREEN KANAN (AREAS 9 - 13)
+             ========================================================= -->
+        <div id="sponsor-card">
+            <!-- Baris Atas: Area 9 (Sponsor Logo & Label Rotator) -->
+            <div class="sponsor-top-row">
+                <div id="area9">
+                    <span id="sponsor-label" class="hidden"></span>
+                    <div id="sponsor-logos-container" class="two-logos">
+                        <img src="/assets/logos/tebo_maju.png" alt="Tebo Maju">
+                        <img src="/assets/logos/tebo_27.png" alt="HUT Tebo 27">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Baris Bawah: Area 13 (Info BO & Map) -->
+            <div id="area13">
+                <span class="bo-tag" id="series-bo-text">BO3</span>
+                <span class="divider-tag">•</span>
+                <span class="map-tag" id="match-map-text">BROKEN WALL</span>
+            </div>
+        </div>
+
+        <!-- AREA 4 (CONTAINER TETAP ADA DENGAN GRADASI BACKGROUND, HANYA KONTENNYA YANG HIDDEN) -->
+        <div id="area4">
+            <div class="gold-lead-content hidden" id="gold-content-right">
+                <img class="gold-icon" src="/assets/gold.png" alt="Gold">
+                <span class="gold-amount" id="gold-diff-right">+0</span>
+            </div>
+        </div>
+
+        <!-- AREA 6: STATS TIM MERAH (KANAN) -> Gold, Turret, Lord, Turtle (Simetris) -->
+        <div id="area6">
+            <!-- Gold -->
+            <div class="objective-item" title="Gold Merah">
+                <span class="obj-val gold-text" id="red-gold">5.0K</span>
+                <img class="obj-icon" src="/assets/mpl_icons/gold_circle.svg" alt="Gold">
+            </div>
+            <!-- Turret -->
+            <div class="objective-item" title="Turret Merah">
+                <span class="obj-val" id="red-turret">0</span>
+                <img class="obj-icon" src="/assets/mpl_icons/turret.svg" alt="Turret">
+            </div>
+            <!-- Lord -->
+            <div class="objective-item" title="Lord Merah">
+                <span class="obj-val" id="red-lord">0</span>
+                <img class="obj-icon" src="/assets/mpl_icons/lord.svg" alt="Lord">
+            </div>
+            <!-- Turtle -->
+            <div class="objective-item" title="Turtle Merah">
+                <span class="obj-val" id="red-turtle">0</span>
+                <img class="obj-icon" src="/assets/mpl_icons/turtle.svg" alt="Turtle">
+            </div>
+        </div>
+
+        <!-- AREA 1 MENAMPUNG SKOR, TIMER DI ATAS LOGO, AREA 2 DI BAWAH, DAN LOGO TEBO -->
+        <div id="area1">
+            <!-- Timer tepat di atas logo Tebo -->
+            <div id="timer-text">02:02</div>
+
+            <!-- Row Skor Tim A dan Tim B -->
+            <div class="score-row">
+                <div id="score-team-a" class="score-box">20</div>
+                <div class="timer-spacer"></div>
+                <div id="score-team-b" class="score-box">11</div>
+            </div>
+
+            <!-- AREA 2 DI DALAM AREA 1 (DI BAWAH) UNTUK SKOR GAME BO3 -->
+            <div id="area2">
+                <!-- Indikator Skor Game Tim Kiri (BO3: 2 bulatan mepet kiri) -->
+                <div class="series-dots-group left" id="series-left">
+                    <div class="series-bar"></div>
+                    <div class="series-bar"></div>
+                </div>
+
+                <!-- Indikator Skor Game Tim Kanan (Game 1 merah, 2 bulatan mepet kanan) -->
+                <div class="series-dots-group right" id="series-right">
+                    <div class="series-bar won"></div>
+                    <div class="series-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGO TEBO: DI DEPAN AREA 1 & AREA 2 (DI LUAR AREA 1 AGAR TIDAK TERPOTONG SAAT TIMER-CUTOUT) -->
+        <img class="logo-tebo" src="/assets/logos/logo_tebo.png" alt="Logo Tebo">
+    </div>
+
+    <!-- =========================================================
+         SCRIPT: ROTASI SPONSOR AREA 9 (7 DUMMY SPONSOR)
+         ========================================================= -->
+    <script>
+        // Daftar Sponsor & Brand dari /assets/logos/sponsor/ serta Logo Event:
+        // Pola penamaan file:
+        // - sponsor1_1_aneka.jpg (1 logo)
+        // - sponsor3_1_Bung Therapy Center.png & sponsor3_1_ICON Net.png (slide 3 berpasangan)
+        // - sponsor4_2_Bank 9 Jambi.png & sponsor4_2_Ria Printing.png (slide 4 berpasangan)
+        const sponsorList = [
+            {
+                id: 1,
+                label: "", // Event resmi tanpa label sponsor di atas
+                logos: [
+                    { src: "/assets/logos/tebo_maju.png", alt: "Tebo Maju" },
+                    { src: "/assets/logos/tebo_27.png", alt: "HUT Tebo 27" }
+                ],
+                duration: 6000 // Tampil 6 detik
+            },
+            {
+                id: 2,
+                label: "SUPPORTED BY",
+                logos: [
+                    { src: "/assets/logos/sponsor/sponsor1_1_aneka.png", alt: "Aneka" }
+                ],
+                duration: 5000
+            },
+            {
+                id: 3,
+                label: "SUPPORTED BY",
+                logos: [
+                    { src: "/assets/logos/sponsor/sponsor3_1_ICON Net.png", alt: "ICON Net" }
+                ],
+                duration: 5000
+            },
+            {
+                id: 3,
+                label: "SUPPORTED BY",
+                logos: [
+                    { src: "/assets/logos/sponsor/sponsor3_1_Bung Therapy Center.png", alt: "Bung Therapy Center" }
+                ],
+                duration: 5000
+            },
+            {
+                id: 4,
+                label: "SUPPORTED BY",
+                logos: [
+                    { src: "/assets/logos/sponsor/sponsor4_2_Bank 9 Jambi.png", alt: "Bank 9 Jambi" },
+                    { src: "/assets/logos/sponsor/sponsor4_2_Ria Printing.png", alt: "Ria Printing" }
+                ],
+                duration: 5000
+            }
+        ];
+
+        let currentSponsorIndex = 0;
+        const sponsorLabelEl = document.getElementById('sponsor-label');
+        const sponsorContainerEl = document.getElementById('sponsor-logos-container');
+
+        function renderSponsor(index) {
+            const item = sponsorList[index];
+            if (!item) return;
+
+            // 1. Fade out animasi
+            sponsorContainerEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                // 2. Set label di atas
+                if (item.label && item.label.trim() !== '') {
+                    sponsorLabelEl.textContent = item.label;
+                    sponsorLabelEl.classList.remove('hidden');
+                } else {
+                    sponsorLabelEl.textContent = '';
+                    sponsorLabelEl.classList.add('hidden');
+                }
+
+                // 3. Render elemen gambar
+                sponsorContainerEl.innerHTML = '';
+                if (item.logos.length > 1) {
+                    sponsorContainerEl.classList.add('two-logos');
+                } else {
+                    sponsorContainerEl.classList.remove('two-logos');
+                }
+
+                item.logos.forEach(logo => {
+                    const img = document.createElement('img');
+                    img.src = logo.src;
+                    img.alt = logo.alt || 'Sponsor';
+                    sponsorContainerEl.appendChild(img);
+                });
+
+                // 4. Fade in kembali
+                sponsorContainerEl.classList.remove('fade-out');
+
+                // Jadwalkan sponsor berikutnya sesuai durasi
+                setTimeout(() => {
+                    currentSponsorIndex = (currentSponsorIndex + 1) % sponsorList.length;
+                    renderSponsor(currentSponsorIndex);
+                }, item.duration);
+
+            }, 400); // Waktu transisi fade out
+        }
+
+        // Jalankan rotasi saat pertama kali dimuat
+        renderSponsor(0);
+
+        // =========================================================
+        // KONTROL TIMER CUTOUT (LUBANG / TRANSPARAN IN-GAME PASSTHROUGH)
+        // =========================================================
+        // Nilai default: false (Mode OCR normal, teks timer terlihat + background kuning)
+        // Bisa diubah realtime lewat console: setTimerCutout(true) atau setTimerCutout(false)
+        // Atau via URL di browser / OBS browser source: ?timerCutout=true untuk mode lubang
+        let isTimerCutoutActive = false;
+
+        function setTimerCutout(active) {
+            isTimerCutoutActive = Boolean(active);
+            const area1El = document.getElementById('area1');
+            if (isTimerCutoutActive) {
+                area1El.classList.add('timer-cutout');
+                console.log("[Scoreboard] Mode Timer Cutout (Transparan Passthrough) AKTIF");
+            } else {
+                area1El.classList.remove('timer-cutout');
+                console.log("[Scoreboard] Mode Timer OCR (Normal HTML) AKTIF");
+            }
+        }
+
+        // Cek parameter URL '?timerCutout=true' jika ingin mengaktifkan
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('timerCutout') === 'true' || urlParams.get('cutout') === '1') {
+            setTimerCutout(true);
+        } else {
+            setTimerCutout(false);
+        }
+
+        // =========================================================
+        // SISTEM SERIES BO (BEST OF 1 / 3 / 5) & SKOR GAME AREA 2
+        // =========================================================
+        // Variabel state match:
+        let matchSeriesType = 3;  // Pilihan: 1 (BO1), 3 (BO3), 5 (BO5)
+        let scoreGameLeft = 0;    // Skor kemenangan game tim kiri
+        let scoreGameRight = 1;   // Skor kemenangan game tim kanan
+        let currentMapName = "BROKEN WALL"; // BROKEN WALL, FLYING CLOUD, DANGEROUS GRASS, dll.
+
+        // Elemen DOM
+        const seriesLeftEl = document.getElementById('series-left');
+        const seriesRightEl = document.getElementById('series-right');
+        const seriesBoTextEl = document.getElementById('series-bo-text');
+        const matchMapTextEl = document.getElementById('match-map-text');
+
+        /**
+         * Mengatur format BO pertandingan:
+         * @param {number} bo - Nilai 1, 3, atau 5
+         */
+        function setSeriesBO(bo) {
+            matchSeriesType = Number(bo);
+            renderSeriesScore();
+            if (seriesBoTextEl) {
+                seriesBoTextEl.textContent = `BO${matchSeriesType}`;
+            }
+            console.log(`[Scoreboard] Format Best of disetel ke BO${matchSeriesType}`);
+        }
+
+        /**
+         * Mengatur nama map yang digunakan:
+         * @param {string} mapName - misal 'BROKEN WALL', 'FLYING CLOUD', 'DANGEROUS GRASS'
+         */
+        function setMatchMap(mapName) {
+            currentMapName = mapName.toUpperCase();
+            if (matchMapTextEl) {
+                matchMapTextEl.textContent = currentMapName;
+            }
+            console.log(`[Scoreboard] Map disetel ke ${currentMapName}`);
+        }
+
+        /**
+         * Mengatur skor game kemenangan:
+         * @param {number} leftScore - skor kemenangan tim kiri (0 s/d kemenangan maksimal)
+         * @param {number} rightScore - skor kemenangan tim kanan (0 s/d kemenangan maksimal)
+         */
+        function setSeriesScore(leftScore, rightScore) {
+            if (leftScore !== undefined) scoreGameLeft = Number(leftScore);
+            if (rightScore !== undefined) scoreGameRight = Number(rightScore);
+            renderSeriesScore();
+            console.log(`[Scoreboard] Skor Series: ${scoreGameLeft} - ${scoreGameRight}`);
+        }
+
+        /**
+         * Fungsi helper untuk menambah skor kemenangan tim kiri atau kanan
+         * @param {'left'|'right'} side 
+         */
+        function addGameWin(side) {
+            const maxWins = Math.ceil(matchSeriesType / 2);
+            if (side === 'left' && scoreGameLeft < maxWins) {
+                scoreGameLeft++;
+            } else if (side === 'right' && scoreGameRight < maxWins) {
+                scoreGameRight++;
+            }
+            renderSeriesScore();
+        }
+
+        /**
+         * Merender bulatan indikator kemenangan di Area 2 sesuai BO:
+         * - BO1: 1 bulatan kiri, 1 bulatan kanan
+         * - BO3: 2 bulatan kiri, 2 bulatan kanan
+         * - BO5: 3 bulatan kiri, 3 bulatan kanan
+         */
+        function renderSeriesScore() {
+            // Jumlah titik kemenangan yang dibutuhkan untuk menang series:
+            // BO1 = butuh 1 win -> 1 titik
+            // BO3 = butuh 2 wins -> 2 titik
+            // BO5 = butuh 3 wins -> 3 titik
+            const totalDots = Math.ceil(matchSeriesType / 2);
+
+            // 1. Render sayap kiri
+            if (seriesLeftEl) {
+                seriesLeftEl.innerHTML = '';
+                for (let i = 0; i < totalDots; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'series-bar' + (i < scoreGameLeft ? ' won' : '');
+                    seriesLeftEl.appendChild(dot);
+                }
+            }
+
+            // 2. Render sayap kanan
+            if (seriesRightEl) {
+                seriesRightEl.innerHTML = '';
+                for (let i = 0; i < totalDots; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'series-bar' + (i < scoreGameRight ? ' won' : '');
+                    seriesRightEl.appendChild(dot);
+                }
+            }
+        }
+
+        // Cek URL params jika ada ?bo=1 atau ?bo=5, ?map=FLYING CLOUD, ?winLeft=1, ?winRight=0
+        if (urlParams.get('bo')) {
+            setSeriesBO(urlParams.get('bo'));
+        } else {
+            setSeriesBO(3); // Default BO3
+        }
+
+        if (urlParams.get('map')) {
+            setMatchMap(urlParams.get('map'));
+        } else {
+            setMatchMap("BROKEN WALL");
+        }
+
+        const paramWinLeft = urlParams.get('winLeft');
+        const paramWinRight = urlParams.get('winRight');
+        if (paramWinLeft !== null || paramWinRight !== null) {
+            setSeriesScore(paramWinLeft || 0, paramWinRight || 0);
+        } else {
+            renderSeriesScore();
+        }
+    </script>
+</body>
+
+</html>

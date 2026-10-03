@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Turtle Head -->
+  <polygon points="20,4 23,9 20,13 17,9" fill="#DC2626"/>
+  <!-- Turtle Body Shell -->
+  <polygon points="20,13 28,18 28,28 20,33 12,28 12,18" fill="#DC2626"/>
+  <!-- Flippers -->
+  <polygon points="12,18 7,15 9,21" fill="#DC2626"/>
+  <polygon points="28,18 33,15 31,21" fill="#DC2626"/>
+  <polygon points="12,28 8,32 12,31" fill="#DC2626"/>
+  <polygon points="28,28 32,32 28,31" fill="#DC2626"/>
+</svg>

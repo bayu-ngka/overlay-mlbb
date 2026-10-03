@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <circle cx="35" cy="30" r="18" fill="#E11D48"/>
+  <path d="M28 22 L45 30 L28 38 Z" fill="#FFFFFF"/>
+  <text x="68" y="37" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="#0F172A" letter-spacing="1">TELKOMSEL</text>
+</svg>

@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <title>Ban Pick</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Space+Mono:wght@700&family=Teko:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Gravtrac';
+            src: url('/assets/Font/Gravtrac%20Bd%20Comp.otf') format('opentype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        :root {
+            /* Warna Tema Kuning Golkar */
+            --golkar-yellow: #FFD100;
+            --golkar-gold: #F5B400;
+            --golkar-dark-gold: #B45309;
+
+            /* Warna Tim & Pertandingan */
+            --team-blue: #0284C7;
+            --team-red: #E11924;
+
+            /* Warna Netral & Background */
+            --bg-dark: #0B0E14;
+            --bg-card: #181E29;
+            --bg-white: #FFFFFF;
+            --bg-cream: #FFFFCC;
+            --border-color: #E2E8F0;
+            --text-dark: #0F172A;
+            --text-white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            background-color: transparent;
+            position: relative;
+        }
+
+        /* Area 1: Relatif dari paling bawah, tinggi 40px, lebar full, background transparan 30% */
+        #area1 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 1920px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        #area1 .title-text {
+            font-family: 'Teko', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-white);
+            line-height: 40px;
+        }
+
+        /* Row persis di atas Area 1 (bottom: 40px) */
+        /* Total lebar 1920px: Tengah 400px, Sisa (1920 - 400) = 1520px -> Kiri 760px, Kanan 760px */
+
+        #area2 {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 760px;
+            height: 233px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: stretch;
+            z-index: 10;
+        }
+
+        #area3 {
+            position: absolute;
+            bottom: 40px;
+            left: 760px;
+            width: 400px;
+            height: 233px;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 10;
+            border-left: 2px solid #E2E8F0;
+            border-right: 2px solid #E2E8F0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Bagian Atas Area 3: Fase & Panah Animasi */
+        .area3-phase-container {
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 8px 12px 0 12px;
+        }
+
+        /* Grup 3 Panah (Triple Chevron) */
+        .phase-arrow-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            opacity: 0.15;
+            transition: all 0.3s ease;
+        }
+
+        .phase-arrow-group.active {
+            opacity: 1;
+        }
+
+        .phase-arrow-group svg {
+            width: 18px;
+            height: 18px;
+            transition: all 0.2s ease;
+        }
+
+        /* Animasi gelombang panah kiri (<<< gelombang mengalir dari kanan ke kiri menuju tim biru) */
+        .phase-arrow-group.active.left svg:nth-child(3) { animation: chevronWave 0.9s infinite 0.0s ease-in-out; }
+        .phase-arrow-group.active.left svg:nth-child(2) { animation: chevronWave 0.9s infinite 0.15s ease-in-out; }
+        .phase-arrow-group.active.left svg:nth-child(1) { animation: chevronWave 0.9s infinite 0.3s ease-in-out; }
+
+        /* Animasi gelombang panah kanan (>>> gelombang mengalir dari kiri ke kanan menuju tim merah) */
+        .phase-arrow-group.active.right svg:nth-child(1) { animation: chevronWave 0.9s infinite 0.0s ease-in-out; }
+        .phase-arrow-group.active.right svg:nth-child(2) { animation: chevronWave 0.9s infinite 0.15s ease-in-out; }
+        .phase-arrow-group.active.right svg:nth-child(3) { animation: chevronWave 0.9s infinite 0.3s ease-in-out; }
+
+        @keyframes chevronWave {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.15);
+                filter: drop-shadow(0 0 6px currentColor);
+            }
+        }
+
+        #area3-phase-text {
+            font-family: 'Teko', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #0F172A;
+            line-height: 1;
+            padding-top: 4px;
+        }
+
+        /* Timer Progress Bar (Tidak terlalu lebar, ringkas di bawah teks fase) */
+        .area3-timer-wrapper {
+            width: 240px;
+            height: 6px;
+            background-color: #E2E8F0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+        }
+
+        #area3-timer-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--golkar-gold), var(--golkar-yellow));
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        /* Tempat Iklan di Bagian Bawah Area 3 */
+        .area3-ad-space {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 16px 8px 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Label Sponsor di atas logo (misal: SUPPORTED BY) */
+        #bp-sponsor-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #64748B;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            transition: opacity 0.3s ease;
+        }
+
+        #bp-sponsor-label.hidden {
+            display: none;
+        }
+
+        /* Wadah Logo Sponsor Dinamis */
+        #bp-sponsor-logos-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            width: 100%;
+            height: 100%;
+            max-height: 110px;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        #bp-sponsor-logos-container.fade-out {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+
+        #bp-sponsor-logos-container img {
+            max-width: 85%;
+            max-height: 85px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.15));
+        }
+
+        /* Mode 2 logo berdampingan */
+        #bp-sponsor-logos-container.two-logos img {
+            max-width: 44%;
+            max-height: 75px;
+        }
+
+        @keyframes bounceLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-6px); }
+        }
+
+        @keyframes bounceRight {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(6px); }
+        }
+
+        #area4 {
+            position: absolute;
+            bottom: 40px;
+            right: 0;
+            width: 760px;
+            height: 233px;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: stretch;
+            z-index: 10;
+        }
+
+        /* 5 Slot Role Pemain di Area 2 & Area 4 (760px / 5 = 152px) */
+        .player-slot {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: #FFFFFF;
+        }
+
+        /* Area Hero / Foto di bagian atas slot (dengan border pemisah) */
+        .player-slot .hero-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Teko', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #0F172A;
+            background-color: #FFFFFF;
+            border-right: 1px solid #CBD5E1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-slot .hero-area img.hero-portrait {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: all 0.3s ease;
+        }
+
+        .player-slot .hero-area img.hero-portrait.previewing {
+            filter: brightness(0.7) contrast(1.1);
+            animation: heroPreviewPulse 1.5s infinite alternate;
+        }
+
+        @keyframes heroPreviewPulse {
+            0% { transform: scale(1); filter: brightness(0.65); }
+            100% { transform: scale(1.05); filter: brightness(0.9); }
+        }
+
+        .player-slot .hero-placeholder {
+            color: #94A3B8;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        #area2 .player-slot:last-child .hero-area {
+            border-right: none;
+        }
+
+        /* Area 4 dibalik, pemisah ada di sisi kiri */
+        #area4 .player-slot .hero-area {
+            border-right: none;
+            border-left: 1px solid #CBD5E1;
+        }
+
+        #area4 .player-slot:last-child .hero-area {
+            border-left: none;
+        }
+
+        /* Area Nama Pemain di bawah: tinggi 35px, bg gelap bukan hitam (#181E29), TANPA BORDER ANTAR NAMA */
+        .player-slot .player-name-bar {
+            height: 35px;
+            width: 100%;
+            background-color: #181E29;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-family: 'Teko', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+            padding-top: 3px;
+            /* Kompensasi baseline font Teko & border-bottom 3px */
+            letter-spacing: 1.5px;
+            border: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+
+        /* Saat giliran player BAN: border bawah warna merah 3px */
+        .player-slot.active-ban .player-name-bar,
+        .player-slot.active.active-ban .player-name-bar {
+            border-bottom: 3px solid #E11924;
+            box-shadow: 0 3px 12px rgba(225, 25, 36, 0.65);
+            color: #FFFFFF;
+        }
+
+        .player-slot.active-ban {
+            box-shadow: inset 0 0 16px rgba(225, 25, 36, 0.45);
+        }
+
+        /* Saat giliran player PICK: border bawah warna kuning Golkar 3px */
+        .player-slot.active-pick .player-name-bar,
+        .player-slot.active:not(.active-ban) .player-name-bar {
+            border-bottom: 3px solid var(--golkar-yellow);
+            box-shadow: 0 3px 10px rgba(255, 209, 0, 0.5);
+            color: #FFFFFF;
+        }
+
+        .player-slot.active-pick,
+        .player-slot.active:not(.active-ban) {
+            box-shadow: inset 0 0 16px rgba(255, 209, 0, 0.4);
+        }
+
+        .ban-hero-slot.active {
+            /* Area daftar hero yang di-ban tetap bersih tanpa border merah */
+            box-shadow: none;
+            border: none;
+        }
+
+        /* Area 5: Tepat di atas Area 3 (Background Kuning Golkar dengan Pattern Geometric Esports sb1) */
+        /* bottom = 40px (Area 1) + 233px (Area 3) = 273px */
+        #area5 {
+            position: absolute;
+            bottom: 273px;
+            left: 760px;
+            width: 400px;
+            height: 75px;
+            background-color: var(--golkar-yellow);
+            z-index: 20;
+            overflow: visible;
+            /* Diizinkan keluar agar logo bisa menonjol di atas */
+        }
+
+        /* Pattern background tipis/halus di Area 5 (MPL / Esport geometric chevron & diamond dari sb1) */
+        #area5::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%23B45309' fill-opacity='0.13'%3E%3Cpolygon points='12,2 22,12 12,22 2,12'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-position: center center;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Logo Tebo di Area 5: Pas di tengah antara kiri & kanan, bagian atas menonjol keluar */
+        .logo-tebo-center {
+            position: absolute;
+            top: -35px;
+            /* Menonjol 35px keluar ke atas dari Area 5 */
+            left: 0;
+            right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            height: 100px;
+            width: auto;
+            max-width: 90px;
+            object-fit: contain;
+            z-index: 10;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+            pointer-events: none;
+        }
+
+        /* Dot Kemenangan di Kiri dan Kanan Logo Tebo pada Area 5 */
+        .area5-dots-group {
+            position: absolute;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 15;
+        }
+
+        /* Sebelah kiri mepet ke kiri */
+        .area5-dots-group.left {
+            left: 20px;
+        }
+
+        /* Sebelah kanan mepet ke kanan */
+        .area5-dots-group.right {
+            right: 20px;
+            flex-direction: row-reverse;
+        }
+
+        /* Bulatan Dot Kemenangan Lebih Besar (30px), Tanpa Border, Menyatu Harmonis dengan Kuning */
+        .series-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(20, 10, 0, 0.32);
+            /* Gelap amber/cokelat transparan berpadu elegan di atas kuning */
+            border: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(255, 255, 255, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Saat Menang: Merah Esports Menyala Tanpa Border */
+        .series-dot.won {
+            background-color: #E11924;
+            border: none;
+            /* box-shadow: 0 0 16px rgba(225, 25, 36, 0.9), inset 0 2px 4px rgba(255, 255, 255, 0.5); */
+        }
+
+        /* Area 6: Di atas pemain kiri (Nama Tim Kiri, 304px x 75px) */
+        #area6 {
+            position: absolute;
+            bottom: 273px;
+            left: 0;
+            width: 304px;
+            height: 75px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F172A;
+            font-family: 'Teko', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 10;
+            border-bottom: 2px solid #E2E8F0;
+            border-right: 2px solid #E2E8F0;
+            line-height: 1;
+            padding-top: 4px;
+        }
+
+        /* Area 7: Di atas pemain kanan (Nama Tim Kanan, 304px x 75px) */
+        #area7 {
+            position: absolute;
+            bottom: 273px;
+            right: 0;
+            width: 304px;
+            height: 75px;
+            background-color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0F172A;
+            font-family: 'Teko', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 10;
+            border-bottom: 2px solid #E2E8F0;
+            border-left: 2px solid #E2E8F0;
+            line-height: 1;
+            padding-top: 4px;
+        }
+
+        /* Container Ban Kiri (Antara Area 6 & Area 5) */
+        /* left: 304px, width: 456px (760px - 304px), height: 75px */
+        #ban-container-left {
+            position: absolute;
+            bottom: 273px;
+            left: 304px;
+            width: 456px;
+            height: 75px;
+            display: flex;
+            align-items: stretch;
+            z-index: 10;
+        }
+
+        /* Container Ban Kanan (Antara Area 5 & Area 7) */
+        /* right: 304px, width: 456px, height: 75px */
+        #ban-container-right {
+            position: absolute;
+            bottom: 273px;
+            right: 304px;
+            width: 456px;
+            height: 75px;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: stretch;
+            z-index: 10;
+        }
+
+        /* Slot Ban Hero Default (Tanpa border, tanpa jarak, rapat penuh) */
+        .ban-hero-slot {
+            flex: 1;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Hero Image yang nanti tampil */
+        .ban-hero-slot img.hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            filter: grayscale(80%) brightness(0.6);
+            display: none;
+        }
+
+        /* Tanda Silang Merah di Tengah */
+        .ban-hero-slot .ban-cross {
+            width: 26px;
+            height: 26px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .ban-hero-slot .ban-cross::before,
+        .ban-hero-slot .ban-cross::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #E11924;
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(225, 25, 36, 0.8);
+        }
+
+        .ban-hero-slot .ban-cross::before {
+            transform: rotate(45deg);
+        }
+
+        .ban-hero-slot .ban-cross::after {
+            transform: rotate(-45deg);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Area 6 (Atas P1 & P2 Tim Kiri - Nama Tim Kiri) -->
+    <div id="area6">
+        <span id="bp-team-left">TLI</span>
+    </div>
+
+    <!-- 5 Slot Ban Hero Kiri (Antara Area 6 & 5) -->
+    <div id="ban-container-left">
+        <div class="ban-hero-slot" id="ban-blue-1">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-blue-2">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-blue-3">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-blue-4">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-blue-5">
+            <div class="ban-cross"></div>
+        </div>
+    </div>
+
+    <!-- Area 5 (Tepat di atas Area 3, Lebar 400px, Tinggi 75px) -->
+    <div id="area5">
+        <!-- Bulatan Kemenangan Tim Kiri -->
+        <div class="area5-dots-group left" id="bp-series-left"></div>
+
+        <!-- Logo Tebo di Tengah -->
+        <img class="logo-tebo-center" src="/assets/logos/logo_tebo.png" alt="Logo Tebo">
+
+        <!-- Bulatan Kemenangan Tim Kanan -->
+        <div class="area5-dots-group right" id="bp-series-right"></div>
+    </div>
+
+    <!-- 5 Slot Ban Hero Kanan (Antara Area 5 & 7) -->
+    <div id="ban-container-right">
+        <div class="ban-hero-slot" id="ban-red-1">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-red-2">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-red-3">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-red-4">
+            <div class="ban-cross"></div>
+        </div>
+        <div class="ban-hero-slot" id="ban-red-5">
+            <div class="ban-cross"></div>
+        </div>
+    </div>
+
+    <!-- Area 7 (Atas P1 & P2 Tim Kanan - Nama Tim Kanan) -->
+    <div id="area7">
+        <span id="bp-team-right">ONI</span>
+    </div>
+
+    <!-- Area 2 (Tim Kiri - 5 Slot Role) -->
+    <div id="area2">
+        <div class="player-slot" id="p-blue-1">
+            <div class="hero-area">HERO 1</div>
+            <div class="player-name-bar">PLAYER 1</div>
+        </div>
+        <div class="player-slot" id="p-blue-2">
+            <div class="hero-area">HERO 2</div>
+            <div class="player-name-bar">PLAYER 2</div>
+        </div>
+        <div class="player-slot" id="p-blue-3">
+            <div class="hero-area">HERO 3</div>
+            <div class="player-name-bar">PLAYER 3</div>
+        </div>
+        <div class="player-slot" id="p-blue-4">
+            <div class="hero-area">HERO 4</div>
+            <div class="player-name-bar">PLAYER 4</div>
+        </div>
+        <div class="player-slot" id="p-blue-5">
+            <div class="hero-area">HERO 5</div>
+            <div class="player-name-bar">PLAYER 5</div>
+        </div>
+    </div>
+
+    <!-- Area 3 (Tengah 400px: Bagian Atas Fase & Timer, Bagian Bawah Ruang Iklan) -->
+    <div id="area3">
+        <!-- Bagian Atas: Fase & Panah Animasi (Triple Arrow 3 Panah) -->
+        <div class="area3-phase-container">
+            <!-- 3 Panah Kiri (Tim Biru: <<<) -->
+            <div class="phase-arrow-group active left" id="phase-arrow-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </div>
+
+            <!-- Teks Fase (BANNING / PICKING) -->
+            <div id="area3-phase-text">BANNING</div>
+
+            <!-- 3 Panah Kanan (Tim Merah: >>>) -->
+            <div class="phase-arrow-group right" id="phase-arrow-right">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#E11924" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#E11924" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#E11924" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Progress Timer Bar Ringkas (Simulasi Waktu 30s dari 60s = 50%) -->
+        <div class="area3-timer-wrapper">
+            <div id="area3-timer-bar" style="width: 50%;"></div>
+        </div>
+
+        <!-- Tempat Iklan di Bawahnya (Sinkron dengan Scoreboard sb1) -->
+        <div class="area3-ad-space" id="bp-ad-space">
+            <span id="bp-sponsor-label" class="hidden"></span>
+            <div id="bp-sponsor-logos-container">
+                <img src="/assets/logos/tebo_maju.png" alt="Tebo Maju">
+                <img src="/assets/logos/tebo_27.png" alt="HUT Tebo 27">
+            </div>
+        </div>
+    </div>
+
+    <!-- Area 4 (Tim Kanan - 5 Slot Role, urutan dari tepi kanan) -->
+    <div id="area4">
+        <div class="player-slot" id="p-red-1">
+            <div class="hero-area">HERO 1</div>
+            <div class="player-name-bar">PLAYER 1</div>
+        </div>
+        <div class="player-slot" id="p-red-2">
+            <div class="hero-area">HERO 2</div>
+            <div class="player-name-bar">PLAYER 2</div>
+        </div>
+        <div class="player-slot" id="p-red-3">
+            <div class="hero-area">HERO 3</div>
+            <div class="player-name-bar">PLAYER 3</div>
+        </div>
+        <div class="player-slot" id="p-red-4">
+            <div class="hero-area">HERO 4</div>
+            <div class="player-name-bar">PLAYER 4</div>
+        </div>
+        <div class="player-slot" id="p-red-5">
+            <div class="hero-area">HERO 5</div>
+            <div class="player-name-bar">PLAYER 5</div>
+        </div>
+    </div>
+
+    <!-- Area 1 Paling Bawah -->
+    <div id="area1">
+        <span class="title-text">TEBO MAJU 2030</span>
+    </div>
+
+    <!-- Script Sinkronisasi Realtime dengan Dashboard Control -->
+    <script>
+        let currentBO = 3; // Default BO3 -> 2 dots
+        let scoreLeft = 0;
+        let scoreRight = 0;
+        let teamLeftName = "TLI";
+        let teamRightName = "ONI";
+
+        function renderSeriesDots() {
+            const leftEl = document.getElementById('bp-series-left');
+            const rightEl = document.getElementById('bp-series-right');
+            if (!leftEl || !rightEl) return;
+
+            // Hitung target kemenangan: BO1 -> 1, BO3 -> 2, BO5 -> 3, BO7 -> 4
+            let totalDots = 2;
+            if (currentBO === 1) totalDots = 1;
+            else if (currentBO === 3) totalDots = 2;
+            else if (currentBO === 5) totalDots = 3;
+            else if (currentBO === 7) totalDots = 4;
+
+            // Render sayap kiri
+            leftEl.innerHTML = '';
+            for (let i = 0; i < totalDots; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'series-dot' + (i < scoreLeft ? ' won' : '');
+                leftEl.appendChild(dot);
+            }
+
+            // Render sayap kanan
+            rightEl.innerHTML = '';
+            for (let i = 0; i < totalDots; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'series-dot' + (i < scoreRight ? ' won' : '');
+                rightEl.appendChild(dot);
+            }
+        }
+
+        function renderTeamNames() {
+            const elLeft = document.getElementById('bp-team-left');
+            const elRight = document.getElementById('bp-team-right');
+            if (elLeft) elLeft.textContent = teamLeftName;
+            if (elRight) elRight.textContent = teamRightName;
+        }
+
+        // Baca URL Parameters jika ada
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('bo')) currentBO = parseInt(urlParams.get('bo')) || 3;
+        if (urlParams.get('winLeft')) scoreLeft = parseInt(urlParams.get('winLeft')) || 0;
+        if (urlParams.get('winRight')) scoreRight = parseInt(urlParams.get('winRight')) || 0;
+        if (urlParams.get('teamA')) teamLeftName = urlParams.get('teamA');
+        if (urlParams.get('teamB')) teamRightName = urlParams.get('teamB');
+        renderSeriesDots();
+        renderTeamNames();
+
+        // WebSocket Listener (Realtime terhubung ke server port 4000)
+        let draftState = null;
+        let draftPhases = [];
+        let allHeroesList = [];
+
+        async function fetchHeroesLookup() {
+            try {
+                const res = await fetch('/api/heroes');
+                if (res.ok) allHeroesList = await res.json();
+            } catch (e) {
+                console.error("Error loading heroes lookup:", e);
+            }
+        }
+        fetchHeroesLookup();
+
+        function getHeroImageByName(heroName) {
+            if (!heroName) return "";
+            const h = allHeroesList.find(x => x.name.toLowerCase() === heroName.toLowerCase());
+            return h ? h.image : `/assets/heroes/${heroName.toLowerCase().replace(/[\s\.'_-]/g, '')}.png`;
+        }
+
+        function renderDraftOverlay() {
+            if (!draftState) return;
+
+            const currentPhase = draftPhases[draftState.currentPhaseIndex] || {
+                type: "PREPARATION", side: "none", action: "none", targetSlot: -1
+            };
+
+            // 1. Update Teks Fase & Panah Giliran
+            const phaseTextEl = document.getElementById('area3-phase-text');
+            const arrowLeftEl = document.getElementById('phase-arrow-left');
+            const arrowRightEl = document.getElementById('phase-arrow-right');
+
+            if (phaseTextEl) {
+                phaseTextEl.textContent = currentPhase.type === "PREPARATION" ? "PREPARATION" : currentPhase.type;
+            }
+
+            if (arrowLeftEl && arrowRightEl) {
+                if (currentPhase.side === 'blue') {
+                    arrowLeftEl.classList.add('active');
+                    arrowRightEl.classList.remove('active');
+                } else if (currentPhase.side === 'red') {
+                    arrowLeftEl.classList.remove('active');
+                    arrowRightEl.classList.add('active');
+                } else {
+                    arrowLeftEl.classList.remove('active');
+                    arrowRightEl.classList.remove('active');
+                }
+            }
+
+            // 2. Render Bans Kiri & Kanan
+            for (let i = 0; i < 5; i++) {
+                const banBlueEl = document.getElementById(`ban-blue-${i + 1}`);
+                const banRedEl = document.getElementById(`ban-red-${i + 1}`);
+
+                // Cek apakah slot ini aktif di fase sekarang
+                const isBlueBanActive = (currentPhase.action === 'ban' && currentPhase.side === 'blue' && currentPhase.targets && currentPhase.targets.some(t => t.slot === i));
+                const isRedBanActive = (currentPhase.action === 'ban' && currentPhase.side === 'red' && currentPhase.targets && currentPhase.targets.some(t => t.slot === i));
+
+                // Blue Ban
+                if (banBlueEl) {
+                    const heroName = draftState.blueBans[i];
+
+                    if (isBlueBanActive && !heroName) banBlueEl.classList.add('active');
+                    else banBlueEl.classList.remove('active');
+
+                    let imgEl = banBlueEl.querySelector('img.hero-img');
+                    if (!imgEl) {
+                        imgEl = document.createElement('img');
+                        imgEl.className = 'hero-img';
+                        banBlueEl.appendChild(imgEl);
+                    }
+
+                    const crossEl = banBlueEl.querySelector('.ban-cross');
+
+                    if (heroName) {
+                        imgEl.src = getHeroImageByName(heroName);
+                        imgEl.style.display = 'block';
+                        imgEl.style.filter = 'grayscale(80%) brightness(0.6)';
+                        if (crossEl) crossEl.style.display = 'none'; // Sembunyikan tanda silang saat hero sudah di-ban
+                    } else {
+                        imgEl.style.display = 'none';
+                        if (crossEl) crossEl.style.display = 'flex'; // Munculkan kembali tanda silang jika slot kosong
+                    }
+                }
+
+                // Red Ban
+                if (banRedEl) {
+                    const heroName = draftState.redBans[i];
+
+                    if (isRedBanActive && !heroName) banRedEl.classList.add('active');
+                    else banRedEl.classList.remove('active');
+
+                    let imgEl = banRedEl.querySelector('img.hero-img');
+                    if (!imgEl) {
+                        imgEl = document.createElement('img');
+                        imgEl.className = 'hero-img';
+                        banRedEl.appendChild(imgEl);
+                    }
+
+                    const crossEl = banRedEl.querySelector('.ban-cross');
+
+                    if (heroName) {
+                        imgEl.src = getHeroImageByName(heroName);
+                        imgEl.style.display = 'block';
+                        imgEl.style.filter = 'grayscale(80%) brightness(0.6)';
+                        if (crossEl) crossEl.style.display = 'none'; // Sembunyikan tanda silang saat hero sudah di-ban
+                    } else {
+                        imgEl.style.display = 'none';
+                        if (crossEl) crossEl.style.display = 'flex'; // Munculkan kembali tanda silang jika slot kosong
+                    }
+                }
+            }
+
+            // 3. Render Pemain Kiri & Kanan (Area 2 & Area 4)
+            for (let i = 0; i < 5; i++) {
+                const pickBlueEl = document.getElementById(`p-blue-${i + 1}`);
+                const pickRedEl = document.getElementById(`p-red-${i + 1}`);
+
+                // Cek status aktif saat PICKING (Kuning)
+                const isBluePickActive = (currentPhase.action === 'pick' && currentPhase.side === 'blue' && currentPhase.targets && currentPhase.targets.some(t => t.slot === i));
+                const isRedPickActive = (currentPhase.action === 'pick' && currentPhase.side === 'red' && currentPhase.targets && currentPhase.targets.some(t => t.slot === i));
+
+                // Cek status aktif saat BANNING (Merah di bawah player yang bertugas ban)
+                // target.player bernilai 1..5 sesuai urutan pemain tim tersebut
+                const isBlueBanActive = (currentPhase.action === 'ban' && currentPhase.side === 'blue' && currentPhase.targets && currentPhase.targets.some(t => (t.player ? t.player - 1 === i : t.slot === i)));
+                const isRedBanActive = (currentPhase.action === 'ban' && currentPhase.side === 'red' && currentPhase.targets && currentPhase.targets.some(t => (t.player ? t.player - 1 === i : t.slot === i)));
+
+                // Blue Player Slot
+                if (pickBlueEl) {
+                    const heroName = draftState.bluePicks[i];
+
+                    // Reset semua class aktif
+                    pickBlueEl.classList.remove('active', 'active-ban', 'active-pick');
+
+                    if (isBlueBanActive) {
+                        // Saat giliran BAN -> beri class aktif merah di bawah player
+                        pickBlueEl.classList.add('active', 'active-ban');
+                    } else if (isBluePickActive && !heroName) {
+                        // Saat giliran PICK -> beri class aktif kuning di bawah player
+                        pickBlueEl.classList.add('active', 'active-pick');
+                    }
+
+                    const heroArea = pickBlueEl.querySelector('.hero-area');
+                    if (heroArea) {
+                        let imgEl = heroArea.querySelector('img.hero-portrait');
+                        let placeholderEl = heroArea.querySelector('.hero-placeholder');
+
+                        if (heroName) {
+                            if (!imgEl) {
+                                imgEl = document.createElement('img');
+                                imgEl.className = 'hero-portrait';
+                                heroArea.appendChild(imgEl);
+                            }
+                            imgEl.src = getHeroImageByName(heroName);
+                            imgEl.classList.remove('previewing');
+                            imgEl.style.display = 'block';
+                            if (placeholderEl) placeholderEl.style.display = 'none';
+                        } else {
+                            if (imgEl) imgEl.style.display = 'none';
+                            if (!placeholderEl) {
+                                heroArea.innerHTML = `<span class="hero-placeholder">P${i + 1}</span>`;
+                            } else {
+                                placeholderEl.style.display = 'block';
+                            }
+                        }
+                    }
+                }
+
+                // Red Player Slot
+                if (pickRedEl) {
+                    const heroName = draftState.redPicks[i];
+
+                    // Reset semua class aktif
+                    pickRedEl.classList.remove('active', 'active-ban', 'active-pick');
+
+                    if (isRedBanActive) {
+                        // Saat giliran BAN -> beri class aktif merah di bawah player
+                        pickRedEl.classList.add('active', 'active-ban');
+                    } else if (isRedPickActive && !heroName) {
+                        // Saat giliran PICK -> beri class aktif kuning di bawah player
+                        pickRedEl.classList.add('active', 'active-pick');
+                    }
+
+                    const heroArea = pickRedEl.querySelector('.hero-area');
+                    if (heroArea) {
+                        let imgEl = heroArea.querySelector('img.hero-portrait');
+                        let placeholderEl = heroArea.querySelector('.hero-placeholder');
+
+                        if (heroName) {
+                            if (!imgEl) {
+                                imgEl = document.createElement('img');
+                                imgEl.className = 'hero-portrait';
+                                heroArea.appendChild(imgEl);
+                            }
+                            imgEl.src = getHeroImageByName(heroName);
+                            imgEl.classList.remove('previewing');
+                            imgEl.style.display = 'block';
+                            if (placeholderEl) placeholderEl.style.display = 'none';
+                        } else {
+                            if (imgEl) imgEl.style.display = 'none';
+                            if (!placeholderEl) {
+                                heroArea.innerHTML = `<span class="hero-placeholder">P${i + 1}</span>`;
+                            } else {
+                                placeholderEl.style.display = 'block';
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 4. Timer Bar Progress (45 Detik)
+            updateTimerBar(draftState.timer);
+        }
+
+        function updateTimerBar(seconds) {
+            const bar = document.getElementById('area3-timer-bar');
+            if (bar) {
+                const totalSec = 45;
+                const pct = Math.max(0, Math.min(100, (seconds / totalSec) * 100));
+                bar.style.width = `${pct}%`;
+            }
+        }
+
+        function initControlSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            const socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                console.log("[BP1 Overlay] Connected to Control WebSocket");
+            };
+
+            socket.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'INIT_STATE') {
+                        const data = msg.data || {};
+                        if (data.bo !== undefined) currentBO = parseInt(data.bo) || 3;
+                        if (data.winLeft !== undefined) scoreLeft = parseInt(data.winLeft) || 0;
+                        if (data.winRight !== undefined) scoreRight = parseInt(data.winRight) || 0;
+                        if (data.teamLeft !== undefined) teamLeftName = data.teamLeft;
+                        if (data.teamRight !== undefined) teamRightName = data.teamRight;
+
+                        renderSeriesDots();
+                        renderTeamNames();
+
+                        if (msg.draftPhases) draftPhases = msg.draftPhases;
+                        if (msg.draftData) {
+                            draftState = msg.draftData;
+                            renderDraftOverlay();
+                        }
+
+                        if (msg.currentSponsor && msg.currentSponsor.sponsor) {
+                            bpCurrentSponsorIndex = msg.currentSponsor.index || 0;
+                            renderBPSponsor(msg.currentSponsor.sponsor);
+                        }
+                    } else if (msg.type === 'STATE_UPDATED') {
+                        const data = msg.data || {};
+                        let dotsChanged = false;
+                        let teamsChanged = false;
+
+                        if (data.bo !== undefined && data.bo !== currentBO) {
+                            currentBO = parseInt(data.bo) || 3;
+                            dotsChanged = true;
+                        }
+                        if (data.winLeft !== undefined && data.winLeft !== scoreLeft) {
+                            scoreLeft = parseInt(data.winLeft) || 0;
+                            dotsChanged = true;
+                        }
+                        if (data.winRight !== undefined && data.winRight !== scoreRight) {
+                            scoreRight = parseInt(data.winRight) || 0;
+                            dotsChanged = true;
+                        }
+                        if (data.teamLeft !== undefined && data.teamLeft !== teamLeftName) {
+                            teamLeftName = data.teamLeft;
+                            teamsChanged = true;
+                        }
+                        if (data.teamRight !== undefined && data.teamRight !== teamRightName) {
+                            teamRightName = data.teamRight;
+                            teamsChanged = true;
+                        }
+
+                        if (dotsChanged) renderSeriesDots();
+                        if (teamsChanged) renderTeamNames();
+                    } else if (msg.type === 'DRAFT_STATE_UPDATED') {
+                        draftState = msg.data;
+                        renderDraftOverlay();
+                    } else if (msg.type === 'DRAFT_TIMER_TICK') {
+                        if (draftState) draftState.timer = msg.data.timer;
+                        updateTimerBar(msg.data.timer);
+                    } else if (msg.type === 'SPONSOR_ROTATION' && msg.data) {
+                        bpCurrentSponsorIndex = msg.data.index || 0;
+                        if (msg.data.sponsor) {
+                            renderBPSponsor(msg.data.sponsor);
+                        }
+                    }
+                } catch (e) {
+                    console.error("[BP1 Overlay] WebSocket error:", e);
+                }
+            };
+
+            socket.onclose = () => {
+                setTimeout(initControlSocket, 3000);
+            };
+        }
+
+        initControlSocket();
+
+        // =========================================================
+        // SCRIPT: ROTASI SPONSOR AREA 3 (DATA TUNGGAL & SINKRON SERVER)
+        // =========================================================
+        let bpSponsorList = [];
+        let bpCurrentSponsorIndex = 0;
+        const bpSponsorLabelEl = document.getElementById('bp-sponsor-label');
+        const bpSponsorContainerEl = document.getElementById('bp-sponsor-logos-container');
+
+        async function loadSharedSponsors() {
+            try {
+                const res = await fetch('/api/sponsors');
+                if (res.ok) {
+                    bpSponsorList = await res.json();
+                    if (Array.isArray(bpSponsorList) && bpSponsorList.length > 0) {
+                        // Render initial jika belum dirender oleh WebSocket INIT_STATE
+                        if (!bpSponsorContainerEl.querySelector('img')) {
+                            renderBPSponsor(bpSponsorList[bpCurrentSponsorIndex] || bpSponsorList[0]);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("[BP1] Error loading sponsors:", err);
+            }
+        }
+
+        function renderBPSponsor(item) {
+            if (!item || !bpSponsorContainerEl) return;
+
+            // 1. Fade out animasi
+            bpSponsorContainerEl.classList.add('fade-out');
+
+            setTimeout(() => {
+                // 2. Set label di atas (misal SUPPORTED BY)
+                if (bpSponsorLabelEl) {
+                    if (item.label && item.label.trim() !== '') {
+                        bpSponsorLabelEl.textContent = item.label;
+                        bpSponsorLabelEl.classList.remove('hidden');
+                    } else {
+                        bpSponsorLabelEl.textContent = '';
+                        bpSponsorLabelEl.classList.add('hidden');
+                    }
+                }
+
+                // 3. Render gambar logo
+                bpSponsorContainerEl.innerHTML = '';
+                if (item.logos && item.logos.length > 1) {
+                    bpSponsorContainerEl.classList.add('two-logos');
+                } else {
+                    bpSponsorContainerEl.classList.remove('two-logos');
+                }
+
+                (item.logos || []).forEach(logo => {
+                    const img = document.createElement('img');
+                    img.src = logo.src;
+                    img.alt = logo.alt || 'Sponsor';
+                    bpSponsorContainerEl.appendChild(img);
+                });
+
+                // 4. Fade in kembali
+                bpSponsorContainerEl.classList.remove('fade-out');
+            }, 350); // Durasi transisi fade out halus
+        }
+
+        // Jalankan fetch data sponsor bersama
+        loadSharedSponsors();
+    </script>
+</body>
+
+</html>

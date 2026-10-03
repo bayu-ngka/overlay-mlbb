@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Spire top forks -->
+  <polygon points="17,6 20,12 18,12 15,6" fill="#DC2626"/>
+  <polygon points="23,6 20,12 22,12 25,6" fill="#DC2626"/>
+  <!-- Middle turret tower body -->
+  <polygon points="16,13 24,13 22,26 18,26" fill="#DC2626"/>
+  <!-- Base pedestal -->
+  <polygon points="15,27 25,27 27,34 13,34" fill="#DC2626"/>
+</svg>

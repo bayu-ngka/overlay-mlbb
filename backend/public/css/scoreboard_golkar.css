@@ -1,0 +1,392 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Teko:wght@500;600;700&display=swap');
+
+:root {
+  --golkar-yellow: #FFD100;
+  --golkar-gold: #F5B400;
+  --golkar-dark-gold: #B45309;
+  --golkar-amber: #D97706;
+  --bg-dark-1: #0A0D14;
+  --bg-dark-2: #121722;
+  --bg-glass: rgba(13, 17, 26, 0.88);
+  --border-gold: rgba(245, 180, 0, 0.45);
+  --team-blue: #0284C7;
+  --team-red: #DC2626;
+  --text-white: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background-color: transparent;
+  font-family: 'Chakra Petch', sans-serif;
+  color: var(--text-white);
+  user-select: none;
+}
+
+/* OVERLAY CONTAINER */
+.overlay-screen {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+
+/* TOP SPONSOR BANNER (TOP RIGHT MPL STYLE) */
+.sponsor-bar-container {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 50;
+  animation: fadeInSlideRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sponsor-badge {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(16, 21, 30, 0.95) 0%, rgba(10, 13, 20, 0.98) 100%);
+  border: 1.5px solid var(--border-gold);
+  border-radius: 8px;
+  padding: 6px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(245, 180, 0, 0.15);
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.sponsor-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--golkar-yellow), var(--golkar-dark-gold));
+}
+
+.sponsor-logo-img {
+  height: 48px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.tournament-tag {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--golkar-yellow);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: rgba(245, 180, 0, 0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 180, 0, 0.3);
+}
+
+/* MAIN SCOREBOARD HEADER */
+.scoreboard-wrapper {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 40;
+}
+
+/* TOP METADATA BAR (BO & TOURNAMENT STAGE) */
+.stage-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.92) 20%, rgba(15, 23, 42, 0.92) 80%, transparent);
+  border-top: 1px solid rgba(245, 180, 0, 0.3);
+  padding: 3px 40px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #E2E8F0;
+  margin-bottom: 2px;
+}
+
+.stage-banner span.highlight {
+  color: var(--golkar-yellow);
+  text-shadow: 0 0 10px rgba(255, 209, 0, 0.5);
+}
+
+/* CENTRAL SCOREBAR HUD */
+.scorebar-hud {
+  display: flex;
+  align-items: stretch;
+  height: 62px;
+  background: var(--bg-glass);
+  border-radius: 8px;
+  border: 1px solid var(--border-gold);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 180, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  position: relative;
+}
+
+/* METALLIC GOLKAR TOP ACCENT LINE */
+.scorebar-hud::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--golkar-yellow) 25%, 
+    #FFF 50%, 
+    var(--golkar-yellow) 75%, 
+    transparent 100%
+  );
+}
+
+/* TEAM FLANKS */
+.team-side {
+  display: flex;
+  align-items: center;
+  width: 440px;
+  height: 100%;
+}
+
+.team-side.blue {
+  justify-content: flex-end;
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.15) 0%, transparent 100%);
+}
+
+.team-side.red {
+  justify-content: flex-start;
+  background: linear-gradient(270deg, rgba(220, 38, 38, 0.15) 0%, transparent 100%);
+}
+
+/* LOGO & TEAM NAME BOX */
+.team-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 100%;
+}
+
+.team-side.blue .team-identity {
+  flex-direction: row;
+}
+
+.team-side.red .team-identity {
+  flex-direction: row-reverse;
+}
+
+.team-logo-frame {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1.5px solid var(--border-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.team-logo-frame img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.team-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-side.blue .team-info {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.team-side.red .team-info {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.team-name {
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 1px;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #FFFFFF;
+}
+
+/* SERIES POINTS (DOTS) */
+.series-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.series-dot {
+  width: 12px;
+  height: 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.series-dot.active {
+  background: var(--golkar-yellow);
+  border-color: #FFF;
+  box-shadow: 0 0 8px var(--golkar-yellow);
+}
+
+/* OBJECTIVE STATS (LORD, TURRET, GOLD) */
+.objectives-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
+}
+
+.stat-value {
+  font-family: 'Teko', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  color: #CBD5E1;
+}
+
+.gold-stat .stat-value {
+  color: var(--golkar-yellow);
+  font-weight: 700;
+  font-size: 25px;
+  text-shadow: 0 0 10px rgba(245, 180, 0, 0.4);
+}
+
+/* CENTER KILLS & TIMER BATTLE CORE */
+.center-core {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #18202F 0%, #0F131C 100%);
+  border-left: 2px solid rgba(245, 180, 0, 0.6);
+  border-right: 2px solid rgba(245, 180, 0, 0.6);
+  padding: 0 4px;
+  position: relative;
+}
+
+.kill-box {
+  width: 68px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kill-number {
+  font-family: 'Teko', sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.kill-box.blue .kill-number {
+  color: #38BDF8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.kill-box.red .kill-number {
+  color: #F87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.4);
+}
+
+/* TIMER BOX */
+.timer-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.timer-label {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--golkar-yellow);
+  text-transform: uppercase;
+}
+
+.timer-digits {
+  font-family: 'Teko', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+/* LOWER DECORATIVE WINGS (MPL INDONESIA STYLE ACCENTS) */
+.hud-bottom-wings {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 4px;
+  margin-top: 1px;
+}
+
+.wing-left, .wing-right {
+  width: 38%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--golkar-gold), transparent);
+  box-shadow: 0 0 8px var(--golkar-yellow);
+}
+
+/* ANIMATIONS */
+@keyframes fadeInSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

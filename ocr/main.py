@@ -356,17 +356,42 @@ def get_available_cameras() -> List[Dict[str, Any]]:
 
     # 1. Ambil nama deskriptif perangkat jika memungkinkan
     if system == "Darwin":
+        # Prioritas 1 macOS: AVFoundation resmi (AVCaptureDevice)
         try:
-            import subprocess
-            out = subprocess.check_output(['system_profiler', 'SPCameraDataType'], text=True, stderr=subprocess.DEVNULL)
-            for line in out.splitlines():
-                line_str = line.strip()
-                if line.startswith('    ') and not line.startswith('      ') and line_str.endswith(':'):
-                    c_name = line_str[:-1].strip()
-                    if c_name and c_name != 'Camera':
-                        cam_names.append(c_name)
+            import AVFoundation
+            devices = AVFoundation.AVCaptureDevice.devicesWithMediaType_(AVFoundation.AVMediaTypeVideo)
+            for d in devices:
+                c_name = str(d.localizedName())
+                if c_name:
+                    cam_names.append(c_name)
         except Exception:
-            pass
+            try:
+                import objc
+                from Foundation import NSBundle
+                bundle = NSBundle.bundleWithPath_('/System/Library/Frameworks/AVFoundation.framework')
+                objc.loadBundle('AVFoundation', globals(), bundle_path='/System/Library/Frameworks/AVFoundation.framework')
+                AVCaptureDevice = objc.lookUpClass('AVCaptureDevice')
+                devices = AVCaptureDevice.devicesWithMediaType_('vide')
+                for d in devices:
+                    c_name = str(d.localizedName())
+                    if c_name:
+                        cam_names.append(c_name)
+            except Exception:
+                pass
+
+        # Fallback macOS jika AVFoundation gagal: system_profiler
+        if not cam_names:
+            try:
+                import subprocess
+                out = subprocess.check_output(['system_profiler', 'SPCameraDataType'], text=True, stderr=subprocess.DEVNULL)
+                for line in out.splitlines():
+                    line_str = line.strip()
+                    if line.startswith('    ') and not line.startswith('      ') and line_str.endswith(':'):
+                        c_name = line_str[:-1].strip()
+                        if c_name and c_name != 'Camera':
+                            cam_names.append(c_name)
+            except Exception:
+                pass
     elif system == "Windows":
         # Prioritas 1: pygrabber (DirectShow enumeration - memetakan index DirectShow ke nama kamera 1:1)
         try:
@@ -403,15 +428,29 @@ def get_available_cameras() -> List[Dict[str, Any]]:
         try:
             cap = cv2.VideoCapture(idx, backend)
             if cap.isOpened():
-                ret, _ = cap.read()
+                ret, frame = cap.read()
+                w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                if ret and frame is not None:
+                    h, w = frame.shape[:2]
+
                 # Dapatkan nama dari deteksi sistem jika ada
                 if idx < len(cam_names):
                     device_name = cam_names[idx]
                 else:
                     device_name = f"Video / Virtual Camera #{idx}"
 
-                w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                # Khusus macOS: Deteksi nama presisi berdasarkan resolusi native perangkat
+                # OBS Virtual Camera disetel 1080p (1920x1080), sedangkan FaceTime HD Camera native 720p (1280x720)
+                if system == "Darwin" and len(cam_names) >= 2:
+                    obs_name = next((n for n in cam_names if "OBS" in n or "Virtual" in n), None)
+                    face_name = next((n for n in cam_names if "FaceTime" in n or "Built-in" in n), None)
+                    if obs_name and face_name:
+                        if w == 1920 and h == 1080:
+                            device_name = obs_name
+                        elif w == 1280 and h == 720:
+                            device_name = face_name
+
                 cameras.append({
                     "index": idx,
                     "name": device_name,
@@ -558,6 +597,7 @@ app.add_middleware(
 ocr_data_store = {
     "status": "initializing",
     "last_updated": None,
+    "processing_time_ms": 0.0,
     "game_timer": "00:00",
     "score": {
         "blue_kills": 0,
@@ -721,6 +761,9 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                             return game_content[ry:ry+rh, rx:rx+rw]
                     return None
 
+                # Catat waktu awal pemrosesan seluruh ROI
+                roi_start_time = time.perf_counter()
+
                 # 1. BACA GAME TIMER
                 timer_str = "00:00"
                 c_timer = crop_box("game_timer")
@@ -827,11 +870,16 @@ def background_worker(capture_mode: int, selected_window: Optional[Dict[str, Any
                             if val_kda:
                                 custom_roi_data[r_name] = val_kda
 
+                # Hitung durasi pemrosesan seluruh ROI dalam milidetik (ms)
+                roi_duration_ms = round((time.perf_counter() - roi_start_time) * 1000.0, 2)
+                print(f"[OCR Debug] Semua ROI berhasil diproses dalam {roi_duration_ms} ms (Timer: {timer_str}, Skor: {b_kills}-{r_kills}, Gold: {b_gold_str} vs {r_gold_str})")
+
                 # 5. UPDATE HASIL KE GLOBAL DATA STORE
                 with data_lock:
                     current_time_str = time.strftime("%H:%M:%S")
                     ocr_data_store["status"] = "running"
                     ocr_data_store["last_updated"] = current_time_str
+                    ocr_data_store["processing_time_ms"] = roi_duration_ms
                     if timer_str and timer_str != "00:00":
                         ocr_data_store["game_timer"] = timer_str
                     ocr_data_store["score"]["blue_kills"] = b_kills
@@ -1124,6 +1172,10 @@ def roi_checker_ui():
                         <div style="font-size: 11px; color: #facc15; text-transform: uppercase;">KDA 1 (Biru)</div>
                         <div id="statKDA1" style="font-size: 18px; font-weight: 700; color: #facc15;">-</div>
                     </div>
+                    <div style="background: #1e293b; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #334155;">
+                        <div style="font-size: 11px; color: #c084fc; text-transform: uppercase;">Kecepatan OCR</div>
+                        <div id="statDuration" style="font-size: 18px; font-weight: 700; color: #c084fc;">0 ms</div>
+                    </div>
                 </div>
 
                 <pre id="jsonViewer" style="background: #1e293b; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 220px; overflow-y: auto; border: 1px solid #334155;">Memuat data JSON...</pre>
@@ -1195,6 +1247,8 @@ def roi_checker_ui():
                         } else {
                             document.getElementById('statKDA1').textContent = '-';
                         }
+
+                        document.getElementById('statDuration').textContent = `${data.processing_time_ms || 0} ms`;
                     }
                 } catch (e) {
                     console.error("Gagal polling JSON", e);

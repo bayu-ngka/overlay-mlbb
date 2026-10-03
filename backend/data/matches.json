@@ -1,0 +1,46 @@
+{
+  "matches": {
+    "match1": {
+      "id": "match1",
+      "tournamentName": "MPL ID SEASON 17",
+      "stage": "REGULAR SEASON",
+      "matchInfo": "MATCH 30 - GAME 2",
+      "format": "BO3",
+      "casters": "AWL | PAK PULUNG | OM WAWA",
+      "flyingCloud": "FLYING CLOUD",
+      "teams": {
+        "blue": {
+          "id": "team_blue",
+          "name": "TEAM LIQUID ID",
+          "shortName": "TLID",
+          "flag": "/assets/flags/indonesia.svg",
+          "score": 0,
+          "seriesScore": 0,
+          "logo": "/assets/logos/tlid.svg"
+        },
+        "red": {
+          "id": "team_red",
+          "name": "FNATIC ONIC",
+          "shortName": "ONIC",
+          "flag": "/assets/flags/indonesia.svg",
+          "score": 0,
+          "seriesScore": 1,
+          "logo": "/assets/logos/onic.svg"
+        }
+      },
+      "sponsors": [
+        {
+          "name": "by.U",
+          "tagline": "PARTNER IN ESPORTS",
+          "logo": "/assets/sponsors/byu.svg"
+        },
+        {
+          "name": "PARTAI GOLKAR",
+          "tagline": "OFFICIAL PARTNER",
+          "logo": "/assets/sponsors/golkar_logo.svg"
+        }
+      ],
+      "tournamentLogo": "/assets/logos/mpl_emblem.svg"
+    }
+  }
+}

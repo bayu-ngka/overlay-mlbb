@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70" width="70" height="70">
+  <!-- Hedgehog Yellow ONIC Silhouette -->
+  <path d="M48 10 C50 14 55 18 60 18 C56 22 55 26 58 30 C53 32 50 36 53 42 C48 41 45 44 46 50 C41 47 37 48 37 54 C34 49 28 50 25 56 C24 49 18 48 12 52 C14 45 10 42 6 42 C10 37 9 32 4 29 C10 27 10 21 7 16 C14 19 18 16 19 11 C23 16 28 15 30 9 C35 15 41 15 44 9 Z" fill="#FACC15"/>
+  <circle cx="48" cy="28" r="3.5" fill="#000000"/>
+</svg>

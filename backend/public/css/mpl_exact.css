@@ -1,0 +1,421 @@
+@font-face {
+  font-family: 'BebasNeue';
+  src: url('/assets/Font/big_noodle_titling.ttf') format('truetype');
+}
+
+:root {
+  --mpl-red: #E11924;
+  --mpl-dark-red: #A80D15;
+  --mpl-yellow: #FFD100;
+  --mpl-gold: #F59E0B;
+  --mpl-black: #0B0E14;
+  --mpl-dark: #121620;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background-color: transparent;
+  font-family: 'BebasNeue', sans-serif, -apple-system;
+  color: #111;
+  user-select: none;
+}
+
+/* KANVAS UTAMA 1920 x 1080 */
+.fhd-overlay {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  pointer-events: none;
+}
+
+/* =========================================================
+   1. GRADIENT TOP SHADOW (Hitam ke Transparan di bagian atas)
+   ========================================================= */
+.top-broadcast-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 140px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* =========================================================
+   2. HEADER CONTAINER (Menempel di y: 0)
+   ========================================================= */
+.scoreboard-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 94px;
+  display: flex;
+  align-items: flex-start;
+  z-index: 50;
+}
+
+/* AREA MINIMAP DI KIRI ATAS (Lebar 336px) */
+.minimap-spacer {
+  width: 336px;
+  height: 94px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   3. STRIP SCOREBOARD UTAMA (Presisi MPL ID)
+   ========================================================= */
+.scoreboard-main-strip {
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* BARIS ATAS (HEIGHT: 62px) */
+.row-upper {
+  display: flex;
+  height: 62px;
+  align-items: stretch;
+}
+
+/* BOX TIM (TLID & ONIC) */
+.team-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, #181E29 0%, #0F131A 100%);
+  color: #FFF;
+  height: 62px;
+  min-width: 130px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.team-box.blue {
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-box.red {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-flag-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.team-crest-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-crest-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.team-tag-name {
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1.2px;
+  color: #FFFFFF;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+/* STATISTIK OBJECTIVES (PUTIH DENGAN PATTERN BATIK SAMAR) */
+.stats-box {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  background-color: #FFFFFF;
+  background-image: url('/assets/mpl_pattern.svg');
+  background-size: 40px 40px;
+  position: relative;
+}
+
+.stat-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+
+.stat-digit {
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #0F172A;
+  line-height: 1;
+  min-width: 14px;
+  text-align: center;
+}
+
+.stat-group.gold-group .stat-digit {
+  font-size: 33px;
+  letter-spacing: 0.5px;
+  color: #0F172A;
+}
+
+/* BATTLE CORE MERAH MPL DI TENGAH */
+.battle-core {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--mpl-red) 0%, var(--mpl-dark-red) 100%);
+  color: #FFF;
+  padding: 0 20px;
+  gap: 18px;
+  position: relative;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.45);
+}
+
+/* Gradasi kilap atas pada battle core */
+.battle-core::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+}
+
+.kill-count {
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 56px;
+  line-height: 1;
+  color: #FFFFFF;
+  min-width: 32px;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.mpl-logo-shield {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));
+}
+
+/* BARIS BAWAH (HEIGHT: 26px) */
+.row-lower {
+  display: flex;
+  height: 26px;
+  align-items: center;
+  background: #F1F5F9;
+  border-top: 1px solid #E2E8F0;
+}
+
+/* GOLD DIFFERENCE DI KIRI BAWAH */
+.gold-lead-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  background: #0B0E14;
+  height: 100%;
+  color: var(--mpl-yellow);
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.lead-coin {
+  width: 15px;
+  height: 15px;
+}
+
+/* INDIKATOR SERIES GAME (TICKS BO3/BO5) */
+.series-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  flex: 1;
+}
+
+.series-track.blue-side {
+  justify-content: flex-end;
+}
+
+.series-track.red-side {
+  justify-content: flex-start;
+}
+
+.series-pip {
+  width: 26px;
+  height: 6px;
+  background: #CBD5E1;
+  border-radius: 1px;
+}
+
+.series-pip.claimed {
+  background: var(--mpl-red);
+  box-shadow: 0 0 6px rgba(225, 25, 36, 0.7);
+}
+
+/* TIMER BOX DI TENGAH BAWAH */
+.timer-pod {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border-left: 1px solid #CBD5E1;
+  border-right: 1px solid #CBD5E1;
+  padding: 0 20px;
+  height: 100%;
+}
+
+.clock-text {
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 24px;
+  color: #0F172A;
+  letter-spacing: 1.5px;
+  line-height: 1;
+}
+
+/* =========================================================
+   4. SPONSOR & TOURNAMENT INFO (KARTU KANAN ATAS IDENTIK)
+   ========================================================= */
+.sponsor-panel-right {
+  display: flex;
+  flex-direction: column;
+  margin-left: 18px;
+}
+
+.sponsor-card-top {
+  display: flex;
+  align-items: stretch;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  height: 62px;
+}
+
+.sponsor-logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 18px;
+  border-right: 1px solid #E2E8F0;
+  min-width: 140px;
+}
+
+.sponsor-kicker {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #475569;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.sponsor-logo-render {
+  height: 38px;
+  width: auto;
+  max-width: 110px;
+  object-fit: contain;
+}
+
+/* PITA VERTIKAL MERAH REGULAR SEASON */
+.red-vertical-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mpl-red);
+  color: #FFFFFF;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 0 4px;
+  font-family: 'BebasNeue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+/* DETAIL TURNAMEN & FORMAT */
+.tournament-meta-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.tour-name-row {
+  font-size: 11px;
+  font-weight: 900;
+  color: #0F172A;
+  letter-spacing: 0.5px;
+}
+
+.match-game-row {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+  margin-top: 1px;
+}
+
+.bo-spec-row {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: 0.5px;
+}
+
+/* BARIS BAWAH: CASTER INFO */
+.caster-lower-strip {
+  display: flex;
+  align-items: center;
+  background: #1E293B;
+  color: #FFFFFF;
+  height: 22px;
+  padding: 0 8px;
+  gap: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 1px;
+}
+
+.caster-mic-box {
+  width: 14px;
+  height: 14px;
+  background: var(--mpl-red);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.caster-names-list {
+  color: #F8FAFC;
+}

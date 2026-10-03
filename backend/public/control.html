@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLBB Esports Overlay Control Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Space+Mono:wght@700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0A0D14;
+            --bg-sidebar: #0F172A;
+            --bg-card: #182234;
+            --bg-input: #0B0F19;
+            --border: #2B3950;
+            --border-light: #3D4F6E;
+            --accent-yellow: #FFD100;
+            --accent-gold: #F5B400;
+            --accent-blue: #0284C7;
+            --accent-red: #E11924;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR KIRI */
+        .sidebar {
+            width: 250px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .sidebar-brand span {
+            color: var(--accent-yellow);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 20px 14px;
+            flex: 1;
+        }
+
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .menu-btn.active {
+            background-color: #1E293B;
+            border-color: var(--border);
+            color: var(--accent-yellow);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        .menu-btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .live-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .badge-live {
+            background-color: #22C55E;
+            color: #052E16;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .badge-live.disconnected {
+            background-color: #EF4444;
+            color: #FFFFFF;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .quick-links a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quick-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            flex: 1;
+            padding: 24px 32px;
+            max-width: 1400px;
+            overflow-y: auto;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* CARD STYLES */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        /* VIEW: PRE-MATCH */
+        .prematch-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .prematch-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .teams-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .team-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .team-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .team-label.blue { color: #38BDF8; }
+        .team-label.red { color: #F87171; }
+
+        input[type="text"] {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-yellow);
+        }
+
+        .btn-swap {
+            background-color: var(--border);
+            border: none;
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .btn-swap:hover {
+            background-color: var(--accent-yellow);
+            color: #000;
+            transform: rotate(180deg);
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .btn-toggle {
+            padding: 10px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle.active {
+            background-color: var(--accent-yellow);
+            color: #0F172A;
+            border-color: var(--accent-yellow);
+        }
+
+        select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .score-control-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .score-team-card {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-val {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .btn-score-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-score {
+            flex: 1;
+            padding: 8px;
+            background-color: var(--border);
+            border: none;
+            border-radius: 6px;
+            color: var(--text-main);
+            font-weight: 800;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-score.add {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #4ADE80;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+        }
+
+        .toggle-switch-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--border);
+            transition: .3s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-yellow);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: #0F172A;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-yellow);
+            color: #0F172A;
+        }
+
+        .btn-primary:hover {
+            background-color: #F5B400;
+        }
+
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid #EF4444;
+            color: #EF4444;
+        }
+
+        .btn-danger:hover {
+            background-color: #EF4444;
+            color: white;
+        }
+
+        /* VIEW: BAN & PICK CONTROLLER */
+        .bp-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Status Bar Atas Draft */
+        .draft-header-card {
+            background: linear-gradient(135deg, #182234 0%, #0F172A 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .draft-phase-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .draft-phase-step {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .draft-phase-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .draft-phase-title.side-blue { color: #38BDF8; }
+        .draft-phase-title.side-red { color: #F87171; }
+        .draft-phase-title.side-none { color: var(--accent-yellow); }
+
+        .draft-timer-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--bg-input);
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .timer-display {
+            font-family: 'Space Mono', monospace;
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--accent-yellow);
+            min-width: 42px;
+            text-align: center;
+        }
+
+        .timer-btn {
+            background-color: var(--border);
+            border: none;
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timer-btn:hover {
+            background-color: var(--text-main);
+            color: #000;
+        }
+
+        /* DRAFT BOARD MONITOR (KIRI & KANAN) */
+        .draft-monitor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .team-monitor-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .team-monitor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .slots-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .slot-badge-item {
+            flex: 1;
+            height: 48px;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .slot-badge-item:hover {
+            border-color: var(--accent-yellow);
+        }
+
+        .slot-badge-item.active-target {
+            border: 2px solid var(--accent-yellow);
+            box-shadow: 0 0 10px rgba(255, 209, 0, 0.4);
+        }
+
+        .slot-badge-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slot-badge-item .slot-placeholder-text {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        .slot-badge-item.is-ban img {
+            filter: grayscale(80%) brightness(0.6);
+        }
+
+        .slot-badge-item.is-ban .ban-cross-badge {
+            position: absolute;
+            color: #EF4444;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .btn-correct-slot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: rgba(239, 68, 68, 0.95);
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        .slot-badge-item:hover .btn-correct-slot {
+            transform: scale(1.15);
+            background-color: #DC2626;
+        }
+
+        /* Modal Koreksi Slot Hero */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background-color: #181E29;
+            border: 2px solid var(--border-light);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 680px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95) translateY(10px); }
+            to { transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+
+        .modal-close-btn:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .modal-filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .modal-filter-row input {
+            flex: 1;
+            padding: 9px 14px;
+            background-color: #0F172A;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .modal-role-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .modal-chip {
+            padding: 5px 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .modal-chip.active {
+            background-color: var(--accent-yellow);
+            color: #0F172A;
+            border-color: var(--accent-yellow);
+        }
+
+        .modal-hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 4px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background-color: #0B0E14;
+        }
+
+        .modal-hero-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.02);
+            transition: all 0.15s;
+        }
+
+        .modal-hero-item:hover {
+            border-color: var(--accent-yellow);
+            background-color: rgba(255, 209, 0, 0.08);
+            transform: scale(1.05);
+        }
+
+        .modal-hero-item img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .modal-hero-item span {
+            font-size: 10px;
+            font-weight: 700;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Role Filter Tabs */
+        .role-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .role-tab-btn {
+            padding: 8px 16px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .role-tab-btn:hover {
+            color: var(--text-main);
+            border-color: var(--border-light);
+        }
+
+        .role-tab-btn.active {
+            background-color: var(--accent-yellow);
+            color: #0F172A;
+            border-color: var(--accent-yellow);
+        }
+
+        .search-box {
+            margin-left: auto;
+            min-width: 220px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 14px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        /* Hero Grid Gallery */
+        .hero-gallery {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .hero-card {
+            background-color: var(--bg-input);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 209, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .hero-card.selected {
+            border-color: var(--accent-yellow);
+            background-color: rgba(255, 209, 0, 0.1);
+            box-shadow: 0 0 14px rgba(255, 209, 0, 0.5);
+        }
+
+        .hero-card.locked-banned {
+            filter: grayscale(100%) opacity(0.35);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .hero-card.locked-banned::after {
+            content: "✖";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #EF4444;
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .hero-card.locked-picked {
+            filter: grayscale(100%) opacity(0.35);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .hero-card.locked-picked::after {
+            content: "✔";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #22C55E;
+            font-size: 30px;
+            font-weight: 900;
+        }
+
+        .hero-card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .hero-card span {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        /* Action Lock Footer Bar (Dua Slot Target & Tombol Fleksibel) */
+        .draft-action-footer {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .targets-pockets-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .target-pocket {
+            background-color: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 200px;
+        }
+
+        .target-pocket:hover {
+            border-color: var(--border-light);
+        }
+
+        .target-pocket.active {
+            border-color: var(--accent-yellow);
+            background-color: rgba(255, 209, 0, 0.08);
+            box-shadow: 0 0 12px rgba(255, 209, 0, 0.3);
+        }
+
+        .target-pocket.done {
+            border-color: #22C55E;
+            opacity: 0.8;
+        }
+
+        .pocket-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background-color: var(--border);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pocket-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pocket-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .pocket-slot-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .pocket-hero-name {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+        }
+
+        .draft-btn-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-draft-step {
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-draft-step:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-draft-ban {
+            background-color: #EF4444;
+            color: #FFFFFF;
+        }
+
+        .btn-draft-ban:hover:not(:disabled) {
+            background-color: #DC2626;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-draft-pick {
+            background-color: var(--accent-yellow);
+            color: #0F172A;
+        }
+
+        .btn-draft-pick:hover:not(:disabled) {
+            background-color: #F5B400;
+            box-shadow: 0 4px 16px rgba(255, 209, 0, 0.4);
+        }
+
+        .btn-draft-sec {
+            background-color: var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+        }
+
+        .btn-draft-sec:hover {
+            background-color: var(--border-light);
+        }
+
+        /* CUSTOM ESPORTS CONFIRMATION MODAL */
+        .confirm-modal-card {
+            background-color: #181E29;
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 460px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(239, 68, 68, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            padding: 28px 24px;
+            gap: 16px;
+        }
+
+        .confirm-icon-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: #EF4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .confirm-modal-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+        }
+
+        .confirm-modal-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0 10px;
+        }
+
+        .confirm-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .confirm-modal-actions button {
+            flex: 1;
+            padding: 12px 18px;
+            font-weight: 800;
+            font-size: 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-confirm-yes {
+            background-color: #EF4444 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-confirm-yes:hover {
+            background-color: #DC2626 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-confirm-cancel {
+            background-color: var(--border) !important;
+            color: #FFFFFF !important;
+        }
+
+        .btn-confirm-cancel:hover {
+            background-color: var(--border-light) !important;
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR KIRI -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span style="font-size: 24px;">🎮</span>
+            <div>
+                <h1>MLBB <span>OVERLAY</span></h1>
+                <div style="font-size: 11px; color: var(--text-muted); font-weight: 700;">BROADCAST ENGINE</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <button class="menu-btn active" id="tab-prematch" onclick="switchNav('prematch')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                PRE-MATCH
+            </button>
+
+            <button class="menu-btn" id="tab-draft" onclick="switchNav('draft')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                BAN / PICK
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="live-status">
+                <span>WEBSOCKET</span>
+                <span class="badge-live" id="ws-status-badge">ONLINE</span>
+            </div>
+            <div class="quick-links">
+                <a href="/sb1.html" target="_blank">Overlay Scoreboard (sb1) ↗</a>
+                <a href="/bp1.html" target="_blank">Overlay Ban/Pick (bp1) ↗</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <main class="main-content">
+
+        <!-- ======================================================== -->
+        <!-- VIEW 1: PRE-MATCH SETTINGS                               -->
+        <!-- ======================================================== -->
+        <section id="view-prematch" class="view-section active">
+            <div style="margin-bottom: 20px;">
+                <h2 style="font-size: 22px; font-weight: 900;">PRE-MATCH CONFIGURATION</h2>
+                <p style="font-size: 13px; color: var(--text-muted);">Pengaturan format pertandingan, inisial tim, dan skor series.</p>
+            </div>
+
+            <div class="prematch-grid">
+                <!-- 1. IDENTITAS TIM -->
+                <div class="card">
+                    <span class="card-title">1. Nama / Inisial Tim</span>
+                    <div class="teams-row">
+                        <div class="team-box">
+                            <label class="team-label blue">TIM BIRU (KIRI)</label>
+                            <input type="text" id="input-team-left" maxlength="4" value="TLI">
+                        </div>
+                        <button class="btn-swap" title="Tukar Tim Kiri & Kanan" onclick="swapTeams()">⇄</button>
+                        <div class="team-box">
+                            <label class="team-label red">TIM MERAH (KANAN)</label>
+                            <input type="text" id="input-team-right" maxlength="4" value="ONI">
+                        </div>
+                    </div>
+                    <button class="btn-action btn-primary" onclick="applyTeamNames()">Update Nama Tim</button>
+                </div>
+
+                <!-- 2. FORMAT BEST OF -->
+                <div class="card">
+                    <span class="card-title">2. Format Pertandingan (Best Of)</span>
+                    <div class="btn-group">
+                        <button class="btn-toggle" id="btn-bo-1" onclick="setBO(1)">BO 1</button>
+                        <button class="btn-toggle active" id="btn-bo-3" onclick="setBO(3)">BO 3</button>
+                        <button class="btn-toggle" id="btn-bo-5" onclick="setBO(5)">BO 5</button>
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 800; display: block; margin-bottom: 6px;">PILIHAN MAP</label>
+                        <select id="select-map" onchange="applyMap()">
+                            <option value="BROKEN WALL">BROKEN WALL</option>
+                            <option value="FLYING CLOUD">FLYING CLOUD</option>
+                            <option value="DANGEROUS GRASS">DANGEROUS GRASS</option>
+                            <option value="IMPERIAL SANCTUARY">IMPERIAL SANCTUARY</option>
+                            <option value="CELESTIAL PALACE">CELESTIAL PALACE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 3. SKOR GAME SERIES -->
+                <div class="card">
+                    <span class="card-title">3. Skor Kemenangan Game</span>
+                    <div class="score-control-row">
+                        <div class="score-team-card">
+                            <span class="team-label blue" id="label-score-left">TLI WINS</span>
+                            <span class="score-val" id="val-win-left">0</span>
+                            <div class="btn-score-group">
+                                <button class="btn-score" onclick="adjustWin('left', -1)">-</button>
+                                <button class="btn-score add" onclick="adjustWin('left', 1)">+ Win</button>
+                            </div>
+                        </div>
+                        <div class="score-team-card">
+                            <span class="team-label red" id="label-score-right">ONI WINS</span>
+                            <span class="score-val" id="val-win-right">1</span>
+                            <div class="btn-score-group">
+                                <button class="btn-score" onclick="adjustWin('right', -1)">-</button>
+                                <button class="btn-score add" onclick="adjustWin('right', 1)">+ Win</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-action btn-danger" onclick="resetSeriesScores()">Reset Skor Game (0 - 0)</button>
+                </div>
+
+                <!-- 4. EMERGENCY CUTOUT -->
+                <div class="card">
+                    <span class="card-title">4. Emergency Timer Passthrough</span>
+                    <div class="toggle-switch-card">
+                        <div>
+                            <strong style="display: block; font-size: 14px;">Mode Lubang Transparan</strong>
+                            <span style="font-size: 12px; color: var(--text-muted);">
+                                Aktifkan celah transparan di scoreboard agar timer asli in-game MLBB tembus pandang.
+                            </span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="check-cutout" onchange="toggleCutout(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 2: BAN / PICK CONTROLLER (TAB & FOTO HERO)         -->
+        <!-- ======================================================== -->
+        <section id="view-draft" class="view-section">
+            <div class="bp-container">
+                <!-- Status Header Draft -->
+                <div class="draft-header-card">
+                    <div class="draft-phase-info">
+                        <span class="draft-phase-step" id="draft-phase-step-label">PHASE 1 OF 18</span>
+                        <div class="draft-phase-title side-blue" id="draft-phase-title">
+                            <span id="draft-side-badge">🔵 BLUE SIDE</span>: <span id="draft-action-badge">BAN 1</span>
+                        </div>
+                    </div>
+
+                    <!-- Timer Box -->
+                    <div class="draft-timer-box">
+                        <div class="timer-display" id="draft-timer-val">45</div>
+                        <button class="timer-btn" id="btn-timer-toggle" onclick="toggleDraftTimer()">▶ START</button>
+                        <button class="timer-btn" onclick="resetDraftTimerSeconds(45)">↺ 45s</button>
+                    </div>
+                </div>
+
+                <!-- DRAFT BOARD MONITOR (PILIH LANGSUNG SLOT MANAPUN UNTUK DIKOREKSI) -->
+                <div class="draft-monitor-grid">
+                    <!-- Monitor Tim Biru -->
+                    <div class="team-monitor-card">
+                        <div class="team-monitor-header" style="color: #38BDF8;">
+                            <span>🔵 <span id="monitor-team-left">TLI</span> (BLUE)</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">KLIK SLOT UNTUK EDIT / KOREKSI</span>
+                        </div>
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted);">BANS:</div>
+                        <div class="slots-row" id="monitor-blue-bans"></div>
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted);">PICKS (P1 - P5):</div>
+                        <div class="slots-row" id="monitor-blue-picks"></div>
+                    </div>
+
+                    <!-- Monitor Tim Merah -->
+                    <div class="team-monitor-card">
+                        <div class="team-monitor-header" style="color: #F87171;">
+                            <span>🔴 <span id="monitor-team-right">ONI</span> (RED)</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">KLIK SLOT UNTUK EDIT / KOREKSI</span>
+                        </div>
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted);">BANS:</div>
+                        <div class="slots-row" id="monitor-red-bans"></div>
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted);">PICKS (P1 - P5):</div>
+                        <div class="slots-row" id="monitor-red-picks"></div>
+                    </div>
+                </div>
+
+                <!-- Role Filter Tabs & Search -->
+                <div class="role-tabs">
+                    <button class="role-tab-btn active" data-role="ALL" onclick="filterHeroRole('ALL')">ALL HEROES</button>
+                    <button class="role-tab-btn" data-role="Tank" onclick="filterHeroRole('Tank')">🛡️ TANK</button>
+                    <button class="role-tab-btn" data-role="Fighter" onclick="filterHeroRole('Fighter')">⚔️ FIGHTER</button>
+                    <button class="role-tab-btn" data-role="Assassin" onclick="filterHeroRole('Assassin')">🗡️ ASSASSIN</button>
+                    <button class="role-tab-btn" data-role="Mage" onclick="filterHeroRole('Mage')">🔮 MAGE</button>
+                    <button class="role-tab-btn" data-role="Marksman" onclick="filterHeroRole('Marksman')">🏹 MARKSMAN</button>
+                    <button class="role-tab-btn" data-role="Support" onclick="filterHeroRole('Support')">💖 SUPPORT</button>
+
+                    <div class="search-box">
+                        <input type="text" id="hero-search-input" placeholder="🔍 Cari nama hero..." oninput="filterHeroSearch(this.value)">
+                    </div>
+                </div>
+
+                <!-- Hero Grid Gallery -->
+                <div class="hero-gallery" id="hero-gallery-grid"></div>
+
+                <!-- Lock Action Footer Bar (Target Pocket 1 / Pocket 2 untuk Single / Double Pick) -->
+                <div class="draft-action-footer">
+                    <div class="targets-pockets-wrapper" id="targets-pockets-container">
+                        <!-- Dinamis: 1 target untuk single pick/ban, 2 target untuk double pick -->
+                    </div>
+
+                    <div class="draft-btn-actions" id="draft-action-buttons">
+                        <!-- Dinamis sesuai target slot aktif -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL KOREKSI HERO (VISUAL PICKER) -->
+    <div id="slot-correction-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-correction-title">
+                    <span>✏️</span>
+                    <span>KOREKSI SLOT HERO</span>
+                </div>
+                <button class="modal-close-btn" onclick="closeCorrectionModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-filter-row">
+                    <input type="text" id="modal-hero-search" placeholder="🔍 Cari nama hero pengganti..." oninput="filterModalHeroSearch(this.value)">
+                </div>
+                <div class="modal-role-chips">
+                    <button class="modal-chip active" data-role="ALL" onclick="filterModalHeroRole('ALL')">ALL</button>
+                    <button class="modal-chip" data-role="Tank" onclick="filterModalHeroRole('Tank')">TANK</button>
+                    <button class="modal-chip" data-role="Fighter" onclick="filterModalHeroRole('Fighter')">FIGHTER</button>
+                    <button class="modal-chip" data-role="Assassin" onclick="filterModalHeroRole('Assassin')">ASSASSIN</button>
+                    <button class="modal-chip" data-role="Mage" onclick="filterModalHeroRole('Mage')">MAGE</button>
+                    <button class="modal-chip" data-role="Marksman" onclick="filterModalHeroRole('Marksman')">MARKSMAN</button>
+                    <button class="modal-chip" data-role="Support" onclick="filterModalHeroRole('Support')">SUPPORT</button>
+                </div>
+                <div class="modal-hero-grid" id="modal-hero-grid">
+                    <!-- Dinamis terisi hero list -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action btn-danger" style="margin: 0; padding: 8px 16px; font-size: 12px; width: auto;" onclick="applySlotHeroCorrection('')">
+                    🗑️ KOSONGKAN SLOT INI
+                </button>
+                <button class="btn-action" style="margin: 0; padding: 8px 16px; font-size: 12px; width: auto; background-color: var(--border);" onclick="closeCorrectionModal()">
+                    BATAL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI RESET DRAFT (CUSTOM DIALOG) -->
+    <div id="reset-confirm-modal" class="modal-overlay">
+        <div class="confirm-modal-card">
+            <div class="confirm-icon-badge">
+                ⚠️
+            </div>
+            <div class="confirm-modal-title">
+                RESET SELURUH DATA DRAFT?
+            </div>
+            <div class="confirm-modal-desc">
+                Tindakan ini akan mengosongkan seluruh daftar <strong>BAN</strong> dan <strong>PICK</strong> untuk kedua tim, serta mengembalikan urutan draft ke fase awal (Phase 1).
+            </div>
+            <div class="confirm-modal-actions">
+                <button class="btn-confirm-cancel" onclick="closeResetConfirmModal()">
+                    BATALKAN
+                </button>
+                <button class="btn-confirm-yes" onclick="executeResetDraft()">
+                    YA, RESET DRAFT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT CLIENT CONTROLLER -->
+    <script>
+        // State Global Aplikasi
+        let ws;
+        let activeNavTab = 'prematch';
+        let allHeroesList = [];
+        let activeRoleFilter = 'ALL';
+        let searchQuery = '';
+
+        // State Kontrol Pre-match
+        let currentState = {
+            bo: 3,
+            winLeft: 0,
+            winRight: 1,
+            teamLeft: "TLI",
+            teamRight: "ONI",
+            mapName: "BROKEN WALL",
+            timerCutout: false
+        };
+
+        // State Draft Ban & Pick
+        let draftState = {
+            currentPhaseIndex: 0,
+            timer: 45,
+            timerRunning: false,
+            blueBans: ["", "", "", "", ""],
+            redBans: ["", "", "", "", ""],
+            bluePicks: ["", "", "", "", ""],
+            redPicks: ["", "", "", "", ""]
+        };
+
+        let draftPhases = [];
+
+        // State Pilihan Lokal Operator (Hanya di layar control, TIDAK bocor ke overlay sebelum Lock)
+        // Format: { slotIndex: heroObject }
+        let pendingHeroSelections = {};
+        let activeTargetSubIndex = 0; // 0: Slot pertama, 1: Slot kedua (jika double pick)
+
+        // Tab Navigation
+        function switchNav(tab) {
+            activeNavTab = tab;
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+
+            const btnEl = document.getElementById(`tab-${tab}`);
+            const secEl = document.getElementById(`view-${tab}`);
+            if (btnEl) btnEl.classList.add('active');
+            if (secEl) secEl.classList.add('active');
+        }
+
+        // ==========================================
+        // 1. WEBSOCKET CONNECTION MANAGER
+        // ==========================================
+        function connectWS() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                const badge = document.getElementById('ws-status-badge');
+                if (badge) {
+                    badge.textContent = 'ONLINE';
+                    badge.classList.remove('disconnected');
+                }
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'INIT_STATE') {
+                        if (msg.data) {
+                            currentState = { ...currentState, ...msg.data };
+                            renderPreMatchUI(currentState);
+                        }
+                        if (msg.draftPhases) {
+                            draftPhases = msg.draftPhases;
+                        }
+                        if (msg.draftData) {
+                            draftState = { ...draftState, ...msg.draftData };
+                            renderDraftUI();
+                        }
+                    } else if (msg.type === 'STATE_UPDATED') {
+                        currentState = { ...currentState, ...msg.data };
+                        renderPreMatchUI(currentState);
+                    } else if (msg.type === 'DRAFT_STATE_UPDATED') {
+                        draftState = { ...draftState, ...msg.data };
+                        renderDraftUI();
+                    } else if (msg.type === 'DRAFT_TIMER_TICK') {
+                        draftState.timer = msg.data.timer;
+                        const timerValEl = document.getElementById('draft-timer-val');
+                        if (timerValEl) timerValEl.textContent = String(msg.data.timer).padStart(2, '0');
+                    }
+                } catch (e) {
+                    console.error("WS Parse Error:", e);
+                }
+            };
+
+            ws.onclose = () => {
+                const badge = document.getElementById('ws-status-badge');
+                if (badge) {
+                    badge.textContent = 'RECONNECTING';
+                    badge.classList.add('disconnected');
+                }
+                setTimeout(connectWS, 3000);
+            };
+        }
+
+        function sendWS(type, data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type, data }));
+            }
+        }
+
+        // ==========================================
+        // 2. PRE-MATCH LOGIC
+        // ==========================================
+        function renderPreMatchUI(state) {
+            [1, 3, 5].forEach(bo => {
+                const btn = document.getElementById(`btn-bo-${bo}`);
+                if (btn) {
+                    if (state.bo === bo) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+
+            document.getElementById('input-team-left').value = state.teamLeft || 'TLI';
+            document.getElementById('input-team-right').value = state.teamRight || 'ONI';
+            document.getElementById('label-score-left').textContent = `${state.teamLeft || 'TLI'} WINS`;
+            document.getElementById('label-score-right').textContent = `${state.teamRight || 'ONI'} WINS`;
+
+            const monLeft = document.getElementById('monitor-team-left');
+            const monRight = document.getElementById('monitor-team-right');
+            if (monLeft) monLeft.textContent = state.teamLeft || 'TLI';
+            if (monRight) monRight.textContent = state.teamRight || 'ONI';
+
+            document.getElementById('val-win-left').textContent = state.winLeft || 0;
+            document.getElementById('val-win-right').textContent = state.winRight || 0;
+            document.getElementById('select-map').value = state.mapName || 'BROKEN WALL';
+            document.getElementById('check-cutout').checked = Boolean(state.timerCutout);
+        }
+
+        function setBO(boNum) { sendWS('UPDATE_CONTROL', { bo: Number(boNum) }); }
+
+        function applyTeamNames() {
+            const left = document.getElementById('input-team-left').value.trim().toUpperCase();
+            const right = document.getElementById('input-team-right').value.trim().toUpperCase();
+            sendWS('UPDATE_CONTROL', { teamLeft: left, teamRight: right });
+        }
+
+        function swapTeams() {
+            const left = document.getElementById('input-team-left').value.trim().toUpperCase();
+            const right = document.getElementById('input-team-right').value.trim().toUpperCase();
+            sendWS('UPDATE_CONTROL', {
+                teamLeft: right,
+                teamRight: left,
+                winLeft: currentState.winRight,
+                winRight: currentState.winLeft
+            });
+        }
+
+        function adjustWin(side, delta) {
+            const maxWins = Math.ceil(currentState.bo / 2);
+            if (side === 'left') {
+                let n = (currentState.winLeft || 0) + delta;
+                if (n < 0) n = 0;
+                if (n > maxWins) n = maxWins;
+                sendWS('UPDATE_CONTROL', { winLeft: n });
+            } else {
+                let n = (currentState.winRight || 0) + delta;
+                if (n < 0) n = 0;
+                if (n > maxWins) n = maxWins;
+                sendWS('UPDATE_CONTROL', { winRight: n });
+            }
+        }
+
+        function resetSeriesScores() { sendWS('UPDATE_CONTROL', { winLeft: 0, winRight: 0 }); }
+        function applyMap() { sendWS('UPDATE_CONTROL', { mapName: document.getElementById('select-map').value }); }
+        function toggleCutout(isChecked) { sendWS('UPDATE_CONTROL', { timerCutout: isChecked }); }
+
+        // ==========================================
+        // 3. DRAFT BAN & PICK LOGIC (TAB, GALLERY & DUAL TARGET)
+        // ==========================================
+        async function loadHeroesData() {
+            try {
+                const res = await fetch('/api/heroes');
+                if (res.ok) {
+                    allHeroesList = await res.json();
+                    renderHeroGallery();
+                    renderBoardMonitors();
+                }
+            } catch (err) {
+                console.error("Gagal memuat /api/heroes:", err);
+            }
+        }
+
+        function getHeroImg(name) {
+            if (!name) return "";
+            const h = allHeroesList.find(x => x.name.toLowerCase() === name.toLowerCase());
+            return h ? h.image : `/assets/heroes/${name.toLowerCase().replace(/[\s\.'_-]/g, '')}.png`;
+        }
+
+        function filterHeroRole(role) {
+            activeRoleFilter = role;
+            document.querySelectorAll('.role-tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-role') === role) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            renderHeroGallery();
+        }
+
+        function filterHeroSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            renderHeroGallery();
+        }
+
+        function isHeroBanned(heroName) {
+            return draftState.blueBans.includes(heroName) || draftState.redBans.includes(heroName);
+        }
+
+        function isHeroPicked(heroName) {
+            return draftState.bluePicks.includes(heroName) || draftState.redPicks.includes(heroName);
+        }
+
+        function renderHeroGallery() {
+            const container = document.getElementById('hero-gallery-grid');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const currentPhase = draftPhases[draftState.currentPhaseIndex];
+            const targets = currentPhase ? currentPhase.targets : [];
+            const activeTarget = targets[activeTargetSubIndex] || targets[0];
+            const currentSelected = activeTarget ? pendingHeroSelections[activeTarget.slot] : null;
+
+            const filtered = allHeroesList.filter(h => {
+                const matchRole = (activeRoleFilter === 'ALL') || (h.roles && h.roles.includes(activeRoleFilter));
+                const matchSearch = (!searchQuery) || (h.name.toLowerCase().includes(searchQuery));
+                return matchRole && matchSearch;
+            });
+
+            filtered.forEach(hero => {
+                const card = document.createElement('div');
+                card.className = 'hero-card';
+
+                const banned = isHeroBanned(hero.name);
+                const picked = isHeroPicked(hero.name);
+
+                if (banned) card.classList.add('locked-banned');
+                else if (picked) card.classList.add('locked-picked');
+
+                if (currentSelected && currentSelected.id === hero.id) {
+                    card.classList.add('selected');
+                }
+
+                card.innerHTML = `
+                    <img src="${hero.image}" alt="${hero.name}" loading="lazy">
+                    <span>${hero.name}</span>
+                `;
+
+                card.onclick = () => {
+                    if (banned || picked) return;
+                    selectHeroForTarget(hero);
+                };
+
+                container.appendChild(card);
+            });
+        }
+
+        function selectHeroForTarget(hero) {
+            const currentPhase = draftPhases[draftState.currentPhaseIndex];
+            if (!currentPhase) return;
+            const targets = currentPhase.targets || [];
+            const target = targets[activeTargetSubIndex] || targets[0];
+            if (!target) return;
+
+            // Simpan HANYA di memori operator (TIDAK kirim preview ke overlay)
+            pendingHeroSelections[target.slot] = hero;
+
+            renderTargetPockets();
+            renderHeroGallery();
+        }
+
+        function setActiveTargetIndex(index) {
+            activeTargetSubIndex = index;
+            renderTargetPockets();
+            renderHeroGallery();
+        }
+
+        function renderTargetPockets() {
+            const container = document.getElementById('targets-pockets-container');
+            const btnContainer = document.getElementById('draft-action-buttons');
+            if (!container || !btnContainer) return;
+
+            container.innerHTML = '';
+            btnContainer.innerHTML = '';
+
+            const currentPhase = draftPhases[draftState.currentPhaseIndex] || {
+                type: "PREPARATION", side: "none", action: "none", targets: []
+            };
+
+            const targets = currentPhase.targets || [];
+            if (targets.length === 0) {
+                container.innerHTML = `<span style="color: var(--text-muted); font-size: 13px; font-weight: 700;">DRAFT SELESAI / PERSIAPAN PERTANDINGAN</span>`;
+                btnContainer.innerHTML = `
+                    <button class="btn-draft-step btn-draft-sec" onclick="stepPreviousPhase()">◀ PREV</button>
+                    <button class="btn-draft-step btn-danger" onclick="confirmResetDraft()">RESET DRAFT</button>
+                `;
+                return;
+            }
+
+            // Render Target Pockets
+            targets.forEach((target, idx) => {
+                const pocket = document.createElement('div');
+                pocket.className = 'target-pocket';
+                if (idx === activeTargetSubIndex) pocket.classList.add('active');
+
+                // Cek apakah slot ini sudah terisi di draftState
+                let lockedHeroName = "";
+                if (currentPhase.action === 'ban') {
+                    lockedHeroName = currentPhase.side === 'blue' ? draftState.blueBans[target.slot] : draftState.redBans[target.slot];
+                } else if (currentPhase.action === 'pick') {
+                    lockedHeroName = currentPhase.side === 'blue' ? draftState.bluePicks[target.slot] : draftState.redPicks[target.slot];
+                }
+
+                if (lockedHeroName) pocket.classList.add('done');
+
+                const pendingHero = pendingHeroSelections[target.slot];
+                const displayHeroName = lockedHeroName || (pendingHero ? pendingHero.name : "BELUM DIPILIH");
+                const avatarImg = lockedHeroName ? getHeroImg(lockedHeroName) : (pendingHero ? pendingHero.image : "");
+
+                pocket.innerHTML = `
+                    <div class="pocket-avatar">
+                        ${avatarImg ? `<img src="${avatarImg}">` : `<span style="color: var(--text-muted); font-weight: 800;">?</span>`}
+                    </div>
+                    <div class="pocket-info" style="flex: 1;">
+                        <span class="pocket-slot-label">${target.label} ${lockedHeroName ? '✔ LOCKED' : ''}</span>
+                        <span class="pocket-hero-name">${displayHeroName}</span>
+                    </div>
+                    ${lockedHeroName ? `
+                        <button class="timer-btn" style="padding: 4px 8px; font-size: 11px; background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #FCA5A5;" onclick="event.stopPropagation(); correctSlot('${currentPhase.side}', '${currentPhase.action}', ${target.slot})" title="Koreksi hero slot ini">
+                            ✎ EDIT
+                        </button>
+                    ` : ''}
+                `;
+
+                pocket.onclick = () => setActiveTargetIndex(idx);
+                container.appendChild(pocket);
+            });
+
+            // Render Tombol Lock yang Fleksibel
+            const prevBtn = `<button class="btn-draft-step btn-draft-sec" onclick="stepPreviousPhase()">◀ PREV</button>`;
+            let lockButtonsHTML = '';
+
+            const currentTarget = targets[activeTargetSubIndex] || targets[0];
+            const isBan = currentPhase.action === 'ban';
+            const btnClass = isBan ? 'btn-draft-ban' : 'btn-draft-pick';
+            const actionText = isBan ? 'LOCK BAN' : 'LOCK PICK';
+
+            if (targets.length === 1) {
+                // Single target phase
+                const hasPending = Boolean(pendingHeroSelections[currentTarget.slot]);
+                lockButtonsHTML = `
+                    <button class="btn-draft-step ${btnClass}" onclick="lockTargetSlot(${currentTarget.slot})" ${hasPending ? '' : 'disabled'}>
+                        ${isBan ? '🔒' : '✔'} ${actionText} (${pendingHeroSelections[currentTarget.slot]?.name || ''})
+                    </button>
+                `;
+            } else if (targets.length === 2) {
+                // Double pick phase: Berikan tombol lock slot 1, lock slot 2, atau lock keduanya
+                const t1 = targets[0];
+                const t2 = targets[1];
+                const has1 = Boolean(pendingHeroSelections[t1.slot]);
+                const has2 = Boolean(pendingHeroSelections[t2.slot]);
+
+                const isSlot1Locked = Boolean(currentPhase.side === 'blue' ? draftState.bluePicks[t1.slot] : draftState.redPicks[t1.slot]);
+                const isSlot2Locked = Boolean(currentPhase.side === 'blue' ? draftState.bluePicks[t2.slot] : draftState.redPicks[t2.slot]);
+
+                lockButtonsHTML = `
+                    <button class="btn-draft-step ${btnClass}" onclick="lockTargetSlot(${t1.slot})" ${has1 && !isSlot1Locked ? '' : 'disabled'}>
+                        ✔ LOCK ${t1.label}
+                    </button>
+                    <button class="btn-draft-step ${btnClass}" onclick="lockTargetSlot(${t2.slot})" ${has2 && !isSlot2Locked ? '' : 'disabled'}>
+                        ✔ LOCK ${t2.label}
+                    </button>
+                    <button class="btn-draft-step btn-primary" onclick="lockBothSlots(${t1.slot}, ${t2.slot})" ${has1 && has2 ? '' : 'disabled'}>
+                        ⭐ LOCK KEDUANYA
+                    </button>
+                `;
+            }
+
+            const nextBtn = `<button class="btn-draft-step btn-draft-sec" onclick="stepNextPhase()">NEXT ▶</button>`;
+            const resetBtn = `<button class="btn-draft-step btn-danger" onclick="confirmResetDraft()">RESET</button>`;
+
+            btnContainer.innerHTML = prevBtn + lockButtonsHTML + nextBtn + resetBtn;
+        }
+
+        // ==========================================
+        // 4. LOCK & KOREKSI SLOT LOGIC
+        // ==========================================
+        function lockTargetSlot(slotIndex) {
+            const currentPhase = draftPhases[draftState.currentPhaseIndex];
+            if (!currentPhase) return;
+            const hero = pendingHeroSelections[slotIndex];
+            if (!hero) return;
+
+            const nextBansBlue = [...draftState.blueBans];
+            const nextBansRed = [...draftState.redBans];
+            const nextPicksBlue = [...draftState.bluePicks];
+            const nextPicksRed = [...draftState.redPicks];
+
+            if (currentPhase.action === 'ban') {
+                if (currentPhase.side === 'blue') nextBansBlue[slotIndex] = hero.name;
+                else nextBansRed[slotIndex] = hero.name;
+            } else if (currentPhase.action === 'pick') {
+                if (currentPhase.side === 'blue') nextPicksBlue[slotIndex] = hero.name;
+                else nextPicksRed[slotIndex] = hero.name;
+            }
+
+            delete pendingHeroSelections[slotIndex];
+
+            // Cek apakah seluruh target di fase ini sudah ter-lock
+            const targets = currentPhase.targets || [];
+            const allLocked = targets.every(t => {
+                if (currentPhase.action === 'ban') {
+                    return currentPhase.side === 'blue' ? nextBansBlue[t.slot] : nextBansRed[t.slot];
+                } else {
+                    return currentPhase.side === 'blue' ? nextPicksBlue[t.slot] : nextPicksRed[t.slot];
+                }
+            });
+
+            const nextIndex = allLocked ? Math.min((draftState.currentPhaseIndex || 0) + 1, draftPhases.length - 1) : draftState.currentPhaseIndex;
+
+            sendWS('UPDATE_DRAFT', {
+                currentPhaseIndex: nextIndex,
+                blueBans: nextBansBlue,
+                redBans: nextBansRed,
+                bluePicks: nextPicksBlue,
+                redPicks: nextPicksRed,
+                timer: allLocked ? 45 : draftState.timer
+            });
+
+            if (allLocked) {
+                pendingHeroSelections = {};
+                activeTargetSubIndex = 0;
+            } else {
+                // Otomatis pindah fokus target ke slot yang belum terisi
+                const nextSub = targets.findIndex(t => {
+                    const isFilled = currentPhase.action === 'ban' ?
+                        (currentPhase.side === 'blue' ? nextBansBlue[t.slot] : nextBansRed[t.slot]) :
+                        (currentPhase.side === 'blue' ? nextPicksBlue[t.slot] : nextPicksRed[t.slot]);
+                    return !isFilled;
+                });
+                if (nextSub !== -1) activeTargetSubIndex = nextSub;
+            }
+        }
+
+        function lockBothSlots(slot1, slot2) {
+            const currentPhase = draftPhases[draftState.currentPhaseIndex];
+            if (!currentPhase) return;
+            const h1 = pendingHeroSelections[slot1];
+            const h2 = pendingHeroSelections[slot2];
+            if (!h1 || !h2) return;
+
+            const nextPicksBlue = [...draftState.bluePicks];
+            const nextPicksRed = [...draftState.redPicks];
+
+            if (currentPhase.side === 'blue') {
+                nextPicksBlue[slot1] = h1.name;
+                nextPicksBlue[slot2] = h2.name;
+            } else {
+                nextPicksRed[slot1] = h1.name;
+                nextPicksRed[slot2] = h2.name;
+            }
+
+            delete pendingHeroSelections[slot1];
+            delete pendingHeroSelections[slot2];
+            pendingHeroSelections = {};
+            activeTargetSubIndex = 0;
+
+            const nextIndex = Math.min((draftState.currentPhaseIndex || 0) + 1, draftPhases.length - 1);
+
+            sendWS('UPDATE_DRAFT', {
+                currentPhaseIndex: nextIndex,
+                bluePicks: nextPicksBlue,
+                redPicks: nextPicksRed,
+                timer: 45
+            });
+        }
+
+        // ==========================================
+        // 5. FITUR KOREKSI (VISUAL MODAL HERO PICKER & RESET)
+        // ==========================================
+        let activeCorrectionTarget = null; // { side, type, slotIdx }
+        let modalActiveRole = 'ALL';
+        let modalSearchQuery = '';
+
+        function correctSlot(side, type, slotIdx) {
+            activeCorrectionTarget = { side, type, slotIdx };
+            const currentHero = type === 'ban' ?
+                (side === 'blue' ? draftState.blueBans[slotIdx] : draftState.redBans[slotIdx]) :
+                (side === 'blue' ? draftState.bluePicks[slotIdx] : draftState.redPicks[slotIdx]);
+
+            const titleEl = document.getElementById('modal-correction-title');
+            const searchInput = document.getElementById('modal-hero-search');
+            if (titleEl) {
+                const teamName = side === 'blue' ? (currentState.teamLeft || 'BLUE') : (currentState.teamRight || 'RED');
+                const slotName = type === 'ban' ? `BAN ${slotIdx + 1}` : `PICK ${slotIdx + 1}`;
+                titleEl.innerHTML = `<span>✏️ KOREKSI:</span> <span style="color: ${side === 'blue' ? '#38BDF8' : '#F87171'}">${teamName} ${slotName}</span> <span style="color: var(--text-muted); font-size: 13px;">(Saat ini: ${currentHero || 'KOSONG'})</span>`;
+            }
+
+            if (searchInput) searchInput.value = '';
+            modalSearchQuery = '';
+            modalActiveRole = 'ALL';
+
+            document.querySelectorAll('.modal-chip').forEach(c => {
+                if (c.getAttribute('data-role') === 'ALL') c.classList.add('active');
+                else c.classList.remove('active');
+            });
+
+            renderModalHeroGrid();
+            const modalEl = document.getElementById('slot-correction-modal');
+            if (modalEl) modalEl.classList.add('active');
+        }
+
+        function closeCorrectionModal() {
+            const modalEl = document.getElementById('slot-correction-modal');
+            if (modalEl) modalEl.classList.remove('active');
+            activeCorrectionTarget = null;
+        }
+
+        function filterModalHeroRole(role) {
+            modalActiveRole = role;
+            document.querySelectorAll('.modal-chip').forEach(c => {
+                if (c.getAttribute('data-role') === role) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+            renderModalHeroGrid();
+        }
+
+        function filterModalHeroSearch(val) {
+            modalSearchQuery = val.trim().toLowerCase();
+            renderModalHeroGrid();
+        }
+
+        function renderModalHeroGrid() {
+            const grid = document.getElementById('modal-hero-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const filtered = allHeroesList.filter(h => {
+                const matchRole = (modalActiveRole === 'ALL') || (h.roles && h.roles.includes(modalActiveRole));
+                const matchSearch = (!modalSearchQuery) || (h.name.toLowerCase().includes(modalSearchQuery));
+                return matchRole && matchSearch;
+            });
+
+            filtered.forEach(hero => {
+                const item = document.createElement('div');
+                item.className = 'modal-hero-item';
+                item.title = `Pilih ${hero.name}`;
+                item.innerHTML = `
+                    <img src="${hero.image}" alt="${hero.name}">
+                    <span>${hero.name}</span>
+                `;
+                item.onclick = () => applySlotHeroCorrection(hero.name);
+                grid.appendChild(item);
+            });
+        }
+
+        function applySlotHeroCorrection(heroName) {
+            if (!activeCorrectionTarget) return;
+            const { side, type, slotIdx } = activeCorrectionTarget;
+
+            const nextBansBlue = [...draftState.blueBans];
+            const nextBansRed = [...draftState.redBans];
+            const nextPicksBlue = [...draftState.bluePicks];
+            const nextPicksRed = [...draftState.redPicks];
+
+            if (type === 'ban') {
+                if (side === 'blue') nextBansBlue[slotIdx] = heroName;
+                else nextBansRed[slotIdx] = heroName;
+            } else {
+                if (side === 'blue') nextPicksBlue[slotIdx] = heroName;
+                else nextPicksRed[slotIdx] = heroName;
+            }
+
+            sendWS('UPDATE_DRAFT', {
+                blueBans: nextBansBlue,
+                redBans: nextBansRed,
+                bluePicks: nextPicksBlue,
+                redPicks: nextPicksRed
+            });
+
+            closeCorrectionModal();
+        }
+
+        // ==========================================
+        // 6. RENDER BOARD MONITORS
+        // ==========================================
+        function renderBoardMonitors() {
+            const blueBansEl = document.getElementById('monitor-blue-bans');
+            const redBansEl = document.getElementById('monitor-red-bans');
+            const bluePicksEl = document.getElementById('monitor-blue-picks');
+            const redPicksEl = document.getElementById('monitor-red-picks');
+
+            if (!blueBansEl || !redBansEl || !bluePicksEl || !redPicksEl) return;
+
+            // Blue Bans
+            blueBansEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heroName = draftState.blueBans[i];
+                const item = document.createElement('div');
+                item.className = 'slot-badge-item is-ban';
+                item.title = `Klik untuk koreksi Blue Ban ${i + 1}`;
+                item.innerHTML = heroName ? `
+                    <img src="${getHeroImg(heroName)}">
+                    <span class="ban-cross-badge">✖</span>
+                    <button class="btn-correct-slot" title="Koreksi">✎</button>
+                ` : `<span class="slot-placeholder-text">BAN ${i + 1}</span>`;
+                item.onclick = () => correctSlot('blue', 'ban', i);
+                blueBansEl.appendChild(item);
+            }
+
+            // Red Bans
+            redBansEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heroName = draftState.redBans[i];
+                const item = document.createElement('div');
+                item.className = 'slot-badge-item is-ban';
+                item.title = `Klik untuk koreksi Red Ban ${i + 1}`;
+                item.innerHTML = heroName ? `
+                    <img src="${getHeroImg(heroName)}">
+                    <span class="ban-cross-badge">✖</span>
+                    <button class="btn-correct-slot" title="Koreksi">✎</button>
+                ` : `<span class="slot-placeholder-text">BAN ${i + 1}</span>`;
+                item.onclick = () => correctSlot('red', 'ban', i);
+                redBansEl.appendChild(item);
+            }
+
+            // Blue Picks
+            bluePicksEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heroName = draftState.bluePicks[i];
+                const item = document.createElement('div');
+                item.className = 'slot-badge-item';
+                item.title = `Klik untuk koreksi Blue Pick ${i + 1}`;
+                item.innerHTML = heroName ? `
+                    <img src="${getHeroImg(heroName)}">
+                    <button class="btn-correct-slot" title="Koreksi">✎</button>
+                ` : `<span class="slot-placeholder-text">P${i + 1}</span>`;
+                item.onclick = () => correctSlot('blue', 'pick', i);
+                bluePicksEl.appendChild(item);
+            }
+
+            // Red Picks
+            redPicksEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const heroName = draftState.redPicks[i];
+                const item = document.createElement('div');
+                item.className = 'slot-badge-item';
+                item.title = `Klik untuk koreksi Red Pick ${i + 1}`;
+                item.innerHTML = heroName ? `
+                    <img src="${getHeroImg(heroName)}">
+                    <button class="btn-correct-slot" title="Koreksi">✎</button>
+                ` : `<span class="slot-placeholder-text">P${i + 1}</span>`;
+                item.onclick = () => correctSlot('red', 'pick', i);
+                redPicksEl.appendChild(item);
+            }
+        }
+
+        function renderDraftUI() {
+            const currentPhase = draftPhases[draftState.currentPhaseIndex] || {
+                type: "PREPARATION", side: "none", action: "none", targets: [], label: "Preparation Phase"
+            };
+
+            const stepLabel = document.getElementById('draft-phase-step-label');
+            const phaseTitle = document.getElementById('draft-phase-title');
+            const timerValEl = document.getElementById('draft-timer-val');
+            const timerToggleBtn = document.getElementById('btn-timer-toggle');
+
+            if (stepLabel) {
+                stepLabel.textContent = `PHASE ${(draftState.currentPhaseIndex || 0) + 1} OF ${draftPhases.length || 18}`;
+            }
+
+            if (phaseTitle) {
+                phaseTitle.className = `draft-phase-title side-${currentPhase.side}`;
+                const sideText = currentPhase.side === 'blue' ? `🔵 ${currentState.teamLeft || 'BLUE'}` :
+                                 currentPhase.side === 'red' ? `🔴 ${currentState.teamRight || 'RED'}` : 'MATCH PREPARATION';
+                const actionText = currentPhase.label || currentPhase.type;
+                phaseTitle.innerHTML = `<span id="draft-side-badge">${sideText}</span>: <span id="draft-action-badge">${actionText}</span>`;
+            }
+
+            if (timerValEl) timerValEl.textContent = String(draftState.timer || 45).padStart(2, '0');
+            if (timerToggleBtn) {
+                timerToggleBtn.textContent = draftState.timerRunning ? '⏸ PAUSE' : '▶ START';
+            }
+
+            renderBoardMonitors();
+            renderTargetPockets();
+            renderHeroGallery();
+        }
+
+        function stepNextPhase() {
+            const nextIndex = Math.min((draftState.currentPhaseIndex || 0) + 1, draftPhases.length - 1);
+            sendWS('UPDATE_DRAFT', { currentPhaseIndex: nextIndex });
+            pendingHeroSelections = {};
+            activeTargetSubIndex = 0;
+        }
+
+        function stepPreviousPhase() {
+            const prevIndex = Math.max((draftState.currentPhaseIndex || 0) - 1, 0);
+            sendWS('UPDATE_DRAFT', { currentPhaseIndex: prevIndex });
+            pendingHeroSelections = {};
+            activeTargetSubIndex = 0;
+        }
+
+        function toggleDraftTimer() {
+            if (draftState.timerRunning) sendWS('DRAFT_PAUSE_TIMER', {});
+            else sendWS('DRAFT_START_TIMER', {});
+        }
+
+        function resetDraftTimerSeconds(sec) {
+            sendWS('DRAFT_RESET_TIMER', { seconds: sec });
+        }
+
+        function confirmResetDraft() {
+            const modalEl = document.getElementById('reset-confirm-modal');
+            if (modalEl) modalEl.classList.add('active');
+        }
+
+        function closeResetConfirmModal() {
+            const modalEl = document.getElementById('reset-confirm-modal');
+            if (modalEl) modalEl.classList.remove('active');
+        }
+
+        function executeResetDraft() {
+            sendWS('DRAFT_RESET_ALL', {});
+            pendingHeroSelections = {};
+            activeTargetSubIndex = 0;
+            closeResetConfirmModal();
+        }
+
+        // Jalankan Inisialisasi
+        connectWS();
+        loadHeroesData();
+    </script>
+</body>
+</html>

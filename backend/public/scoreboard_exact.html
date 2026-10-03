@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+  <title>MPL ID Exact 1080p Scoreboard Overlay</title>
+  <link rel="stylesheet" href="/css/mpl_exact.css">
+</head>
+<body>
+  <div class="fhd-overlay">
+    
+    <!-- 1. GRADIENT DARI HITAM KE TRANSPARAN DI ATAS LAYAR -->
+    <div class="top-broadcast-vignette"></div>
+
+    <!-- 2. HEADER TOP BAR (MENEMPEL DI ATAS, Y: 0) -->
+    <div class="scoreboard-top-bar">
+      
+      <!-- AREA MINIMAP DI KIRI ATAS (0 - 336px) -->
+      <div class="minimap-spacer"></div>
+
+      <!-- MAIN SCOREBOARD STRIP -->
+      <div class="scoreboard-main-strip">
+        
+        <!-- BARIS ATAS (62px) -->
+        <div class="row-upper">
+          
+          <!-- TIM BIRU (TLID) -->
+          <div class="team-box blue">
+            <img class="team-flag-circle" id="blue-flag" src="/assets/flags/indonesia.svg" alt="Bendera ID">
+            <div class="team-crest-area">
+              <img class="team-crest-img" id="blue-logo" src="/assets/logos/tlid.svg" alt="TLID">
+              <span class="team-tag-name" id="blue-name">TLID</span>
+            </div>
+          </div>
+
+          <!-- STATS BIRU (TURTLE, LORD, TURRET, GOLD) -->
+          <div class="stats-box">
+            <!-- Turtle -->
+            <div class="stat-group" title="Turtle">
+              <img class="stat-icon" src="/assets/turtle.png" alt="Turtle">
+              <span class="stat-digit" id="blue-turtle">0</span>
+            </div>
+            <!-- Lord -->
+            <div class="stat-group" title="Lord">
+              <img class="stat-icon" src="/assets/lord.png" alt="Lord">
+              <span class="stat-digit" id="blue-lord">0</span>
+            </div>
+            <!-- Turret -->
+            <div class="stat-group" title="Turret">
+              <img class="stat-icon" src="/assets/tower.png" alt="Turret">
+              <span class="stat-digit" id="blue-tower">0</span>
+            </div>
+            <!-- Gold -->
+            <div class="stat-group gold-group" title="Gold">
+              <img class="stat-icon" src="/assets/gold.png" alt="Gold">
+              <span class="stat-digit" id="blue-gold">5.0K</span>
+            </div>
+          </div>
+
+          <!-- BATTLE CORE MERAH MPL (KILLS & EMBLEM) -->
+          <div class="battle-core">
+            <span class="kill-count" id="blue-kills">0</span>
+            <img class="mpl-logo-shield" id="center-tournament-logo" src="/assets/logos/mpl_emblem.svg" alt="MPL">
+            <span class="kill-count" id="red-kills">0</span>
+          </div>
+
+          <!-- STATS MERAH (GOLD, TURRET, LORD, TURTLE) -->
+          <div class="stats-box">
+            <!-- Gold -->
+            <div class="stat-group gold-group" title="Gold">
+              <span class="stat-digit" id="red-gold">5.0K</span>
+              <img class="stat-icon" src="/assets/gold.png" alt="Gold">
+            </div>
+            <!-- Turret -->
+            <div class="stat-group" title="Turret">
+              <span class="stat-digit" id="red-tower">0</span>
+              <img class="stat-icon" src="/assets/tower.png" alt="Turret">
+            </div>
+            <!-- Lord -->
+            <div class="stat-group" title="Lord">
+              <span class="stat-digit" id="red-lord">0</span>
+              <img class="stat-icon" src="/assets/lord.png" alt="Lord">
+            </div>
+            <!-- Turtle -->
+            <div class="stat-group" title="Turtle">
+              <span class="stat-digit" id="red-turtle">0</span>
+              <img class="stat-icon" src="/assets/turtle.png" alt="Turtle">
+            </div>
+          </div>
+
+          <!-- TIM MERAH (ONIC) -->
+          <div class="team-box red">
+            <div class="team-crest-area">
+              <img class="team-crest-img" id="red-logo" src="/assets/logos/onic.svg" alt="ONIC">
+              <span class="team-tag-name" id="red-name">ONIC</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BARIS BAWAH (26px) -->
+        <div class="row-lower">
+          <!-- Gold Lead -->
+          <div class="gold-lead-badge">
+            <img class="lead-coin" src="/assets/gold.png" alt="Gold">
+            <span id="gold-diff-val">+15</span>
+          </div>
+
+          <!-- Series Ticks Kiri -->
+          <div class="series-track blue-side" id="blue-series-ticks">
+            <div class="series-pip"></div>
+            <div class="series-pip"></div>
+          </div>
+
+          <!-- Timer Pertandingan di Tengah -->
+          <div class="timer-pod">
+            <span class="clock-text" id="game-timer">02:02</span>
+          </div>
+
+          <!-- Series Ticks Kanan -->
+          <div class="series-track red-side" id="red-series-ticks">
+            <div class="series-pip claimed"></div>
+            <div class="series-pip"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. KARTU SPONSOR & TOURNAMENT INFO DI KANAN ATAS -->
+      <div class="sponsor-panel-right">
+        
+        <div class="sponsor-card-top">
+          <!-- Logo Sponsor -->
+          <div class="sponsor-logo-section">
+            <span class="sponsor-kicker" id="sponsor-label">PARTNER IN ESPORTS</span>
+            <img class="sponsor-logo-render" id="sponsor-logo-img" src="/assets/sponsors/byu.svg" alt="by.U">
+          </div>
+
+          <!-- Pita Vertikal Merah -->
+          <div class="red-vertical-ribbon" id="stage-spine-text">
+            REGULAR SEASON
+          </div>
+
+          <!-- Detail Match -->
+          <div class="tournament-meta-col">
+            <div class="tour-name-row" id="meta-tournament">MPL ID SEASON 17</div>
+            <div class="match-game-row" id="meta-match">MATCH 30 - GAME 2</div>
+            <div class="bo-spec-row" id="meta-bo">BEST OF 3</div>
+          </div>
+        </div>
+
+        <!-- Bar Caster -->
+        <div class="caster-lower-strip">
+          <div class="caster-mic-box">
+            <svg viewBox="0 0 24 24" fill="#FFFFFF" width="10" height="10">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          </div>
+          <span class="caster-names-list" id="caster-names-text">AWL | PAK PULUNG | OM WAWA</span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/js/scoreboard_mpl_engine.js"></script>
+</body>
+</html>

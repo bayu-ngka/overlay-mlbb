@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overlay Scoreboard - Golkar Esports</title>
+  <link rel="stylesheet" href="/css/scoreboard_golkar.css">
+</head>
+<body>
+  <div class="overlay-screen">
+    
+    <!-- SPONSOR BADGE (KANAN ATAS ALA MPL INDONESIA) -->
+    <div class="sponsor-bar-container">
+      <div class="tournament-tag">OFFICIAL BROADCAST</div>
+      <div class="sponsor-badge">
+        <img id="sponsor-logo" class="sponsor-logo-img" src="/assets/sponsors/golkar_logo.svg" alt="Sponsor">
+      </div>
+    </div>
+
+    <!-- MAIN SCOREBOARD HUD -->
+    <div class="scoreboard-wrapper">
+      
+      <!-- TOP METADATA -->
+      <div class="stage-banner">
+        <span id="stage-text">GOLKAR ESPORTS CHAMPIONSHIP - GRAND FINAL</span>
+      </div>
+
+      <!-- MAIN BAR -->
+      <div class="scorebar-hud">
+        
+        <!-- BLUE TEAM FLANK -->
+        <div class="team-side blue">
+          <!-- TEAM IDENTITY -->
+          <div class="team-identity">
+            <div class="team-logo-frame">
+              <img id="blue-team-logo" src="/assets/logos/beringin.png" alt="Blue Logo">
+            </div>
+            <div class="team-info">
+              <div class="team-name" id="blue-team-name">BERINGIN ESPORTS</div>
+              <div class="series-dots" id="blue-series-dots">
+                <div class="series-dot active"></div>
+                <div class="series-dot"></div>
+                <div class="series-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OBJECTIVES (LORD, TURRET, GOLD) -->
+          <div class="objectives-group">
+            <!-- Lord -->
+            <div class="stat-item" title="Lord Taken">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#94A3B8">
+                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.2l6 3.75v8.1L12 19.8l-6-3.75v-8.1l6-3.75z"/>
+              </svg>
+              <span class="stat-value" id="blue-lord">0</span>
+            </div>
+            <!-- Turret -->
+            <div class="stat-item" title="Turrets Destroyed">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#94A3B8">
+                <path d="M19 2h-2V1h-2v1h-2V1h-2v1H9V1H7v1H5v5l2 2v12h10V9l2-2V2zm-4 17H9v-8h6v8z"/>
+              </svg>
+              <span class="stat-value" id="blue-tower">0</span>
+            </div>
+            <!-- Gold -->
+            <div class="stat-item gold-stat" title="Team Gold">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#FFD100">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-1c-1.66 0-3-1.34-3-3h2c0 .55.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-1.66 0-3-1.34-3-3s1.34-3 3-3v-1h2v1c1.66 0 3 1.34 3 3h-2c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c1.66 0 3 1.34 3 3s-1.34 3-3 3v1z"/>
+              </svg>
+              <span class="stat-value" id="blue-gold">0.0k</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CENTER BATTLE CORE (KILLS & TIMER) -->
+        <div class="center-core">
+          <!-- Blue Kills -->
+          <div class="kill-box blue">
+            <span class="kill-number" id="blue-kills">00</span>
+          </div>
+
+          <!-- Timer -->
+          <div class="timer-box">
+            <span class="timer-label">TIME</span>
+            <span class="timer-digits" id="game-timer">00:00</span>
+          </div>
+
+          <!-- Red Kills -->
+          <div class="kill-box red">
+            <span class="kill-number" id="red-kills">00</span>
+          </div>
+        </div>
+
+        <!-- RED TEAM FLANK -->
+        <div class="team-side red">
+          <!-- OBJECTIVES (GOLD, TURRET, LORD) -->
+          <div class="objectives-group">
+            <!-- Gold -->
+            <div class="stat-item gold-stat" title="Team Gold">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#FFD100">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-1c-1.66 0-3-1.34-3-3h2c0 .55.45 1 1 1h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-1.66 0-3-1.34-3-3s1.34-3 3-3v-1h2v1c1.66 0 3 1.34 3 3h-2c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1h2c1.66 0 3 1.34 3 3s-1.34 3-3 3v1z"/>
+              </svg>
+              <span class="stat-value" id="red-gold">0.0k</span>
+            </div>
+            <!-- Turret -->
+            <div class="stat-item" title="Turrets Destroyed">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#94A3B8">
+                <path d="M19 2h-2V1h-2v1h-2V1h-2v1H9V1H7v1H5v5l2 2v12h10V9l2-2V2zm-4 17H9v-8h6v8z"/>
+              </svg>
+              <span class="stat-value" id="red-tower">0</span>
+            </div>
+            <!-- Lord -->
+            <div class="stat-item" title="Lord Taken">
+              <svg class="stat-icon" viewBox="0 0 24 24" fill="#94A3B8">
+                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.2l6 3.75v8.1L12 19.8l-6-3.75v-8.1l6-3.75z"/>
+              </svg>
+              <span class="stat-value" id="red-lord">0</span>
+            </div>
+          </div>
+
+          <!-- TEAM IDENTITY -->
+          <div class="team-identity">
+            <div class="team-logo-frame">
+              <img id="red-team-logo" src="/assets/logos/garuda.png" alt="Red Logo">
+            </div>
+            <div class="team-info">
+              <div class="team-name" id="red-team-name">GARUDA KNIGHTS</div>
+              <div class="series-dots" id="red-series-dots">
+                <div class="series-dot"></div>
+                <div class="series-dot"></div>
+                <div class="series-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- GOLDEN ACCENT BOTTOM WINGS -->
+      <div class="hud-bottom-wings">
+        <div class="wing-left"></div>
+        <div class="wing-right"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/js/scoreboard_golkar.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <!-- Lord Horns and Face -->
+  <!-- Left Horn -->
+  <path d="M13,8 C11,13 14,19 14,19 L10,19 C8,14 11,8 13,8 Z" fill="#DC2626"/>
+  <!-- Right Horn -->
+  <path d="M27,8 C29,13 26,19 26,19 L30,19 C32,14 29,8 27,8 Z" fill="#DC2626"/>
+  <!-- Face Shield/Skull -->
+  <polygon points="12,19 28,19 26,27 20,33 14,27" fill="#DC2626"/>
+  <!-- Teeth / Grate -->
+  <rect x="16" y="32" width="2" height="4" fill="#DC2626"/>
+  <rect x="19" y="32" width="2" height="4" fill="#DC2626"/>
+  <rect x="22" y="32" width="2" height="4" fill="#DC2626"/>
+  <!-- Eyes cut out -->
+  <polygon points="16,22 19,23 18,25 15,24" fill="#FFFFFF"/>
+  <polygon points="24,22 21,23 22,25 25,24" fill="#FFFFFF"/>
+</svg>

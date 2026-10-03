@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="320" height="80">
+  <defs>
+    <linearGradient id="ampiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0369A1"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="316" height="76" rx="10" fill="#0B0E14" stroke="#F5B400" stroke-width="1.5" />
+  <g transform="translate(18, 14)">
+    <polygon points="26,6 46,44 6,44" fill="url(#ampiGrad)"/>
+    <circle cx="26" cy="28" r="8" fill="#F5B400"/>
+  </g>
+  <text x="82" y="34" font-family="'Inter', sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" letter-spacing="2">AMPI ESPORTS</text>
+  <text x="82" y="54" font-family="'Inter', sans-serif" font-weight="700" font-size="11" fill="#F5B400" letter-spacing="3">MAIN SPONSOR</text>
+</svg>

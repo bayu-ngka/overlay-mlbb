@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "label": "",
+    "logos": [
+      { "src": "/assets/logos/tebo_maju.png", "alt": "Tebo Maju" },
+      { "src": "/assets/logos/tebo_27.png", "alt": "HUT Tebo 27" }
+    ],
+    "duration": 6000
+  },
+  {
+    "id": 2,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor1_1_aneka.png", "alt": "Aneka" }
+    ],
+    "duration": 5000
+  },
+  {
+    "id": 3,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor3_1_ICON Net.png", "alt": "ICON Net" }
+    ],
+    "duration": 5000
+  },
+  {
+    "id": 4,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor3_1_Bung Therapy Center.png", "alt": "Bung Therapy Center" }
+    ],
+    "duration": 5000
+  },
+  {
+    "id": 5,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor4_2_Bank 9 Jambi.png", "alt": "Bank 9 Jambi" },
+      { "src": "/assets/logos/sponsor/sponsor4_2_Ria Printing.png", "alt": "Ria Printing" }
+    ],
+    "duration": 5000
+  }
+]

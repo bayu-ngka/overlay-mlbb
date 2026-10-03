@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <polygon points="40,5 75,25 70,65 40,75 10,65 5,25" fill="#111827" stroke="#DC2626" stroke-width="2"/>
+  <polygon points="40,12 66,28 62,58 40,68 18,58 14,28" fill="#991B1B"/>
+  <!-- Winged swords -->
+  <path d="M40 18 L44 38 L40 54 L36 38 Z" fill="#FBBF24"/>
+  <path d="M22 30 L40 38 L58 30 L40 46 Z" fill="#F1F5F9"/>
+  <text x="40" y="58" font-family="'Impact', sans-serif" font-size="12" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">MPL</text>
+</svg>

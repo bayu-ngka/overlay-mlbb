@@ -13,63 +13,63 @@
   "rois": {
     "game_timer": {
       "description": "Timer pertandingan (tengah atas)",
-      "offset_x": -10,
+      "offset_x": 0,
       "y": 8,
       "width": 85,
       "height": 42
     },
     "blue_kills": {
       "description": "Total kill Tim Biru (kiri timer)",
-      "offset_x": -90,
+      "offset_x": -80,
       "y": 8,
       "width": 80,
       "height": 42
     },
     "red_kills": {
       "description": "Total kill Tim Merah (kanan timer)",
-      "offset_x": 80,
+      "offset_x": 85,
       "y": 8,
       "width": 80,
       "height": 42
     },
     "blue_gold": {
       "description": "Total gold Tim Biru (format angka atau k)",
-      "offset_x": -182,
+      "offset_x": -170,
       "y": 8,
       "width": 95,
       "height": 42
     },
     "red_gold": {
       "description": "Total gold Tim Merah (format angka atau k)",
-      "offset_x": 210,
+      "offset_x": 220,
       "y": 8,
-      "width": 95,
+      "width": 90,
       "height": 42
     },
     "blue_turrets": {
       "description": "Jumlah turret dihancurkan Tim Biru",
-      "offset_x": -291,
+      "offset_x": -280,
       "y": 8,
       "width": 30,
       "height": 42
     },
     "blue_turtles": {
       "description": "Jumlah turtle/lord diperoleh Tim Biru",
-      "offset_x": -375,
+      "offset_x": -365,
       "y": 8,
       "width": 26,
       "height": 42
     },
     "red_turrets": {
       "description": "Jumlah turret dihancurkan Tim Merah",
-      "offset_x": 297,
+      "offset_x": 308,
       "y": 8,
       "width": 30,
       "height": 42
     },
     "red_turtles": {
       "description": "Jumlah turtle/lord diperoleh Tim Merah",
-      "offset_x": 378,
+      "offset_x": 389,
       "y": 8,
       "width": 26,
       "height": 42
@@ -77,7 +77,7 @@
     "blue_kda1": {
       "description": "KDA Player 1 Biru",
       "type": "kda",
-      "offset_x": -858,
+      "offset_x": -848,
       "y": 368,
       "width": 60,
       "height": 25
