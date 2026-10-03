@@ -1,5 +1,4 @@
 @echo off
-setlocal enabledelayedexpansion
 title MLBB Esports Overlay Server Launcher
 
 echo ========================================================
@@ -9,30 +8,14 @@ echo.
 
 :: 1. Cek instalasi Node.js
 where node >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERROR] Node.js TIDAK DITEMUKAN pada sistem ini!
-    echo.
-    echo Silakan unduh dan pasang Node.js (versi 18 ke atas) dari:
-    echo https://nodejs.org/
-    echo.
-    echo Setelah menginstal Node.js, tutup dan buka kembali jendela ini.
-    echo.
-    pause
-    exit /b 1
-)
+if %errorlevel% neq 0 goto :no_node
 
 for /f "tokens=*" %%v in ('node -v 2^>nul') do set NODE_VERSION=%%v
 echo [OK] Node.js terdeteksi: %NODE_VERSION%
 
 :: 2. Cek instalasi npm
 where npm >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERROR] npm (Node Package Manager) tidak ditemukan!
-    echo Pastikan opsi 'npm package manager' dicentang saat menginstal Node.js.
-    echo.
-    pause
-    exit /b 1
-)
+if %errorlevel% neq 0 goto :no_npm
 
 for /f "tokens=*" %%v in ('npm -v 2^>nul') do set NPM_VERSION=%%v
 echo [OK] npm terdeteksi: v%NPM_VERSION%
@@ -44,24 +27,15 @@ if exist "%~dp0backend\server.js" (
 ) else if exist "%~dp0server.js" (
     cd /d "%~dp0"
 ) else (
-    echo [ERROR] File 'server.js' tidak ditemukan di folder proyek ini!
-    echo Pastikan file start_server.bat berada di root folder overlay-mlbb.
-    echo.
-    pause
-    exit /b 1
+    goto :no_server
 )
 
 :: 4. Cek folder node_modules dan dependensi yang dibutuhkan
 set NEED_INSTALL=0
-if not exist "node_modules\" (
-    set NEED_INSTALL=1
-    echo [INFO] Folder 'node_modules' belum ada. Menginstal dependensi...
-) else (
-    :: Cek paket-paket esensial
-    if not exist "node_modules\express\" set NEED_INSTALL=1
-    if not exist "node_modules\cors\" set NEED_INSTALL=1
-    if not exist "node_modules\ws\" set NEED_INSTALL=1
-)
+if not exist "node_modules\" set NEED_INSTALL=1
+if not exist "node_modules\express\" set NEED_INSTALL=1
+if not exist "node_modules\cors\" set NEED_INSTALL=1
+if not exist "node_modules\ws\" set NEED_INSTALL=1
 
 if %NEED_INSTALL% equ 1 (
     echo ========================================================
@@ -70,14 +44,7 @@ if %NEED_INSTALL% equ 1 (
     echo ========================================================
     echo.
     call npm install
-    if %errorlevel% neq 0 (
-        echo.
-        echo [ERROR] Gagal menginstal dependensi melalui npm!
-        echo Pastikan komputer terhubung ke internet dan coba jalankan kembali.
-        echo.
-        pause
-        exit /b 1
-    )
+    if %errorlevel% neq 0 goto :install_failed
     echo.
     echo [OK] Semua dependensi berhasil diinstal!
     echo.
@@ -99,7 +66,7 @@ echo.
 echo (Tekan Ctrl + C untuk mematikan server)
 echo.
 
-:: Membuka halaman control.html di browser default setelah jeda 1 detik
+:: Membuka halaman control.html di browser default
 start "" http://localhost:4000/control.html
 
 :: Jalankan Node.js server
@@ -110,3 +77,41 @@ if %errorlevel% neq 0 (
     echo [PERINGATAN] Server berhenti dengan kode keluar: %errorlevel%
     pause
 )
+exit /b 0
+
+:: ========================================================
+:: LABEL PENANGANAN ERROR & INFORMASI
+:: ========================================================
+
+:no_node
+echo [ERROR] Node.js TIDAK DITEMUKAN pada sistem Windows ini!
+echo.
+echo Silakan unduh dan pasang Node.js ^(versi LTS disarankan^) melalui:
+echo https://nodejs.org/
+echo.
+echo Catatan: Setelah instalasi selesai, pastikan buka kembali terminal/file ini.
+echo.
+pause
+exit /b 1
+
+:no_npm
+echo [ERROR] npm ^(Node Package Manager^) tidak ditemukan!
+echo Pastikan opsi 'npm package manager' dicentang saat menginstal Node.js.
+echo.
+pause
+exit /b 1
+
+:no_server
+echo [ERROR] File 'server.js' tidak ditemukan di folder proyek ini!
+echo Pastikan file start_server.bat berada di root folder overlay-mlbb.
+echo.
+pause
+exit /b 1
+
+:install_failed
+echo.
+echo [ERROR] Gagal menginstal dependensi melalui npm!
+echo Pastikan komputer terhubung ke internet dan coba jalankan kembali.
+echo.
+pause
+exit /b 1
