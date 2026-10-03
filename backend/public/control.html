@@ -1201,6 +1201,13 @@
                 BAN / PICK
             </button>
 
+            <button class="menu-btn" id="tab-ingame" onclick="switchNav('ingame')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                IN-GAME
+            </button>
+
             <button class="menu-btn" id="tab-settings" onclick="switchNav('settings')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
@@ -1295,23 +1302,6 @@
                     </div>
                     <button class="btn-action btn-danger" onclick="resetSeriesScores()">Reset Skor Game (0 - 0)</button>
                 </div>
-
-                <!-- 4. EMERGENCY CUTOUT -->
-                <div class="card">
-                    <span class="card-title">4. Emergency Timer Passthrough</span>
-                    <div class="toggle-switch-card">
-                        <div>
-                            <strong style="display: block; font-size: 14px;">Mode Lubang Transparan</strong>
-                            <span style="font-size: 12px; color: var(--text-muted);">
-                                Aktifkan celah transparan di scoreboard agar timer asli in-game MLBB tembus pandang.
-                            </span>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="check-cutout" onchange="toggleCutout(this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -1329,11 +1319,16 @@
                         </div>
                     </div>
 
-                    <!-- Timer Box -->
-                    <div class="draft-timer-box">
-                        <div class="timer-display" id="draft-timer-val">45</div>
-                        <button class="timer-btn" id="btn-timer-toggle" onclick="toggleDraftTimer()">▶ START</button>
-                        <button class="timer-btn" onclick="resetDraftTimerSeconds(45)">↺ 45s</button>
+                    <!-- Visibility Toggle & Timer Box -->
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <button id="btn-toggle-draft-overlay" class="timer-btn" style="background: rgba(34, 197, 94, 0.2); border-color: #22C55E; color: #4ADE80; font-size: 12px; padding: 10px 16px; border-radius: 8px;" onclick="toggleDraftVisibility()">
+                            👁️ OVERLAY: ON (TAMPIL)
+                        </button>
+                        <div class="draft-timer-box">
+                            <div class="timer-display" id="draft-timer-val">45</div>
+                            <button class="timer-btn" id="btn-timer-toggle" onclick="toggleDraftTimer()">▶ START</button>
+                            <button class="timer-btn" onclick="resetDraftTimerSeconds(45)">↺ 45s</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1396,7 +1391,82 @@
         </section>
 
         <!-- ======================================================== -->
-        <!-- VIEW 3: SETTINGS & OCR INTEGRATION                      -->
+        <!-- VIEW 3: IN-GAME OVERLAY & STATS CONTROLLER              -->
+        <!-- ======================================================== -->
+        <section id="view-ingame" class="view-section">
+            <div class="control-grid">
+                <!-- 1. KONTROL TAMPILAN SCOREBOARD (FADE TOGGLE) -->
+                <div class="card">
+                    <span class="card-title">1. Kontrol Tampilan Scoreboard</span>
+                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                        Atur visibilitas Scoreboard (<code>sb1.html</code>) secara realtime di OBS. Transisi muncul dan hilang menggunakan efek smooth fade.
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+                        <button id="btn-show-scoreboard" class="btn-action btn-primary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="setScoreboardVisibility(true)">
+                            <span>👁️</span> MUNCULKAN (FADE IN)
+                        </button>
+                        <button id="btn-hide-scoreboard" class="btn-action" style="flex: 1; background-color: var(--border); color: #FFFFFF; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="setScoreboardVisibility(false)">
+                            <span>🙈</span> SEMBUNYIKAN (FADE OUT)
+                        </button>
+                    </div>
+                    <div id="sb-status-text" style="font-size: 12px; font-weight: 700; color: #4ADE80; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 8px 12px; border-radius: 8px; text-align: center;">
+                        Status: Scoreboard SEDANG TAMPIL di OBS
+                    </div>
+                </div>
+
+                <!-- 2. EMERGENCY TIMER PASSTHROUGH (LUBANG TRANSPARAN) -->
+                <div class="card">
+                    <span class="card-title">2. Timer Passthrough In-Game</span>
+                    <div class="toggle-switch-card">
+                        <div>
+                            <strong style="display: block; font-size: 14px;">Mode Lubang Transparan</strong>
+                            <span style="font-size: 12px; color: var(--text-muted);">
+                                Aktifkan celah transparan di scoreboard agar timer asli in-game MLBB tembus pandang.
+                            </span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="check-cutout" onchange="toggleCutout(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 12px; line-height: 1.5;">
+                        💡 Gunakan mode ini jika ingin menggunakan angka timer langsung dari rekaman game MLBB tanpa pembacaan OCR.
+                    </div>
+                </div>
+
+                <!-- 3. STATISTIK IN-GAME (FITUR MENDATANG / PLACEHOLDER SIAP PAKAI) -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <span class="card-title" style="margin-bottom: 0;">3. Quick Stats & Graphic Lower Thirds</span>
+                        <span class="badge-live" style="background: rgba(148, 163, 184, 0.2); color: #94A3B8;">SLOTS TERSEDIA</span>
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                        Slot tombol untuk memunculkan statistik pertandingan tambahan (Gold Lead Graphic, MVP Card, Player Comparison, dan Objective Breakdown).
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <button class="btn-action" style="background: rgba(255, 255, 255, 0.04); border: 1px dashed var(--border); color: var(--text-muted); cursor: not-allowed; text-align: left; padding: 14px;" disabled>
+                            <strong style="display: block; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">📊 Gold Lead Graph</strong>
+                            <span style="font-size: 11px;">Grafik tren gold selisih kedua tim</span>
+                        </button>
+                        <button class="btn-action" style="background: rgba(255, 255, 255, 0.04); border: 1px dashed var(--border); color: var(--text-muted); cursor: not-allowed; text-align: left; padding: 14px;" disabled>
+                            <strong style="display: block; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">👑 Match MVP</strong>
+                            <span style="font-size: 11px;">Kartu profil MVP pasca pertandingan</span>
+                        </button>
+                        <button class="btn-action" style="background: rgba(255, 255, 255, 0.04); border: 1px dashed var(--border); color: var(--text-muted); cursor: not-allowed; text-align: left; padding: 14px;" disabled>
+                            <strong style="display: block; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">⚔️ Damage Breakdown</strong>
+                            <span style="font-size: 11px;">Tabel perbandingan damage hero</span>
+                        </button>
+                        <button class="btn-action" style="background: rgba(255, 255, 255, 0.04); border: 1px dashed var(--border); color: var(--text-muted); cursor: not-allowed; text-align: left; padding: 14px;" disabled>
+                            <strong style="display: block; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">🎯 Tower & Lord Tracker</strong>
+                            <span style="font-size: 11px;">Detail waktu pengambilan objektif</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- VIEW 4: SETTINGS & OCR INTEGRATION                      -->
         <!-- ======================================================== -->
         <section id="view-settings" class="view-section">
             <div class="control-grid">
@@ -1652,7 +1722,36 @@ Belum ada tes koneksi. Klik tombol di atas untuk mengetes respon link OCR.
             document.getElementById('val-win-left').textContent = state.winLeft || 0;
             document.getElementById('val-win-right').textContent = state.winRight || 0;
             document.getElementById('select-map').value = state.mapName || 'BROKEN WALL';
-            document.getElementById('check-cutout').checked = Boolean(state.timerCutout);
+            const cutoutEl = document.getElementById('check-cutout');
+            if (cutoutEl) cutoutEl.checked = Boolean(state.timerCutout);
+
+            // In-Game Scoreboard Visibility UI
+            const isSbVis = state.scoreboardVisible !== false; // default true
+            const btnShowSb = document.getElementById('btn-show-scoreboard');
+            const btnHideSb = document.getElementById('btn-hide-scoreboard');
+            const sbStatusText = document.getElementById('sb-status-text');
+
+            if (btnShowSb && btnHideSb && sbStatusText) {
+                if (isSbVis) {
+                    btnShowSb.style.boxShadow = '0 0 14px rgba(255, 209, 0, 0.4)';
+                    btnShowSb.style.borderColor = 'var(--accent-yellow)';
+                    btnHideSb.style.boxShadow = 'none';
+                    btnHideSb.style.borderColor = 'transparent';
+                    sbStatusText.textContent = "Status: Scoreboard SEDANG TAMPIL di OBS (Visible)";
+                    sbStatusText.style.color = "#4ADE80";
+                    sbStatusText.style.background = "rgba(34, 197, 94, 0.1)";
+                    sbStatusText.style.borderColor = "rgba(34, 197, 94, 0.3)";
+                } else {
+                    btnHideSb.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.4)';
+                    btnHideSb.style.borderColor = '#EF4444';
+                    btnShowSb.style.boxShadow = 'none';
+                    btnShowSb.style.borderColor = 'transparent';
+                    sbStatusText.textContent = "Status: Scoreboard DISEMBUNYIKAN dari OBS (Hidden)";
+                    sbStatusText.style.color = "#F87171";
+                    sbStatusText.style.background = "rgba(239, 68, 68, 0.1)";
+                    sbStatusText.style.borderColor = "rgba(239, 68, 68, 0.3)";
+                }
+            }
 
             const ocrInput = document.getElementById('input-ocr-url');
             if (ocrInput && state.ocrUrl !== undefined && !ocrInput.matches(':focus')) {
@@ -1661,7 +1760,37 @@ Belum ada tes koneksi. Klik tombol di atas untuk mengetes respon link OCR.
         }
 
         // ==========================================
-        // 2B. OCR SETTINGS & PING TEST
+        // 2B. IN-GAME OVERLAY CONTROLS
+        // ==========================================
+        function setScoreboardVisibility(visible) {
+            sendWS('UPDATE_CONTROL', { scoreboardVisible: Boolean(visible) });
+        }
+
+        function toggleDraftVisibility() {
+            const currentVis = draftState && draftState.draftVisible !== false;
+            const newVis = !currentVis;
+            sendWS('UPDATE_DRAFT', { draftVisible: newVis });
+        }
+
+        function renderDraftVisibilityBtn() {
+            const btn = document.getElementById('btn-toggle-draft-overlay');
+            if (!btn) return;
+            const isVis = draftState && draftState.draftVisible !== false;
+            if (isVis) {
+                btn.innerHTML = "👁️ OVERLAY: ON (TAMPIL)";
+                btn.style.background = "rgba(34, 197, 94, 0.2)";
+                btn.style.borderColor = "#22C55E";
+                btn.style.color = "#4ADE80";
+            } else {
+                btn.innerHTML = "🙈 OVERLAY: OFF (SEMBUNYI)";
+                btn.style.background = "rgba(239, 68, 68, 0.2)";
+                btn.style.borderColor = "#EF4444";
+                btn.style.color = "#F87171";
+            }
+        }
+
+        // ==========================================
+        // 2C. OCR SETTINGS & PING TEST
         // ==========================================
         function saveOcrSettings() {
             const input = document.getElementById('input-ocr-url');
@@ -1955,9 +2084,10 @@ Belum ada tes koneksi. Klik tombol di atas untuk mengetes respon link OCR.
             }
 
             const nextBtn = `<button class="btn-draft-step btn-draft-sec" onclick="stepNextPhase()">NEXT ▶</button>`;
-            const resetBtn = `<button class="btn-draft-step btn-danger" onclick="confirmResetDraft()">RESET</button>`;
-
             btnContainer.innerHTML = prevBtn + lockButtonsHTML + nextBtn + resetBtn;
+
+            // Render tombol status visibility overlay
+            renderDraftVisibilityBtn();
         }
 
         // ==========================================

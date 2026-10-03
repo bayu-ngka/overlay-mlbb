@@ -2,6 +2,7 @@
   "currentPhaseIndex": 0,
   "timer": 45,
   "timerRunning": false,
+  "draftVisible": true,
   "blueBans": [
     "",
     "",

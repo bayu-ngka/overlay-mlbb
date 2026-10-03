@@ -51,6 +51,19 @@
             background-color: transparent;
         }
 
+        #scoreboard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        #scoreboard.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* Area 1 (Skor, Logo & Area 2 di dalamnya): tinggi 95px, overflow visible agar logo bisa keluar */
         #area1 {
             position: absolute;
@@ -856,12 +869,32 @@
             }
         }
 
+        // =========================================================
+        // KONTROL VISIBILITY SCOREBOARD (FADE IN / FADE OUT)
+        // =========================================================
+        let isScoreboardVisible = true;
+        function setScoreboardVisible(visible) {
+            isScoreboardVisible = Boolean(visible);
+            const sbEl = document.getElementById('scoreboard');
+            if (!sbEl) return;
+            if (isScoreboardVisible) {
+                sbEl.classList.remove('hidden');
+                console.log("[Scoreboard] Scoreboard Tampil (Fade In)");
+            } else {
+                sbEl.classList.add('hidden');
+                console.log("[Scoreboard] Scoreboard Disembunyikan (Fade Out)");
+            }
+        }
+
         // Cek parameter URL '?timerCutout=true' jika ingin mengaktifkan
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('timerCutout') === 'true' || urlParams.get('cutout') === '1') {
             setTimerCutout(true);
         } else {
             setTimerCutout(false);
+        }
+        if (urlParams.get('visible') === 'false' || urlParams.get('hide') === '1') {
+            setScoreboardVisible(false);
         }
 
         // =========================================================
@@ -1022,6 +1055,7 @@
                                     setTeamNames(state.teamLeft, state.teamRight);
                                 }
                                 if (state.timerCutout !== undefined) setTimerCutout(state.timerCutout);
+                                if (state.scoreboardVisible !== undefined) setScoreboardVisible(state.scoreboardVisible);
                                 if (state.ocrUrl !== undefined && state.ocrUrl) {
                                     activeOcrUrl = state.ocrUrl;
                                 }

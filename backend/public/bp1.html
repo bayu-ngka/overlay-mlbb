@@ -52,6 +52,19 @@
             position: relative;
         }
 
+        #draft-overlay {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+        #draft-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         /* Area 1: Relatif dari paling bawah, tinggi 40px, lebar full, background transparan 30% */
         #area1 {
             position: absolute;
@@ -620,6 +633,7 @@
 </head>
 
 <body>
+    <div id="draft-overlay">
     <!-- Area 6 (Atas P1 & P2 Tim Kiri - Nama Tim Kiri) -->
     <div id="area6">
         <span id="bp-team-left">TLI</span>
@@ -781,6 +795,7 @@
     <div id="area1">
         <span class="title-text">TEBO MAJU 2030</span>
     </div>
+    </div>
 
     <!-- Script Sinkronisasi Realtime dengan Dashboard Control -->
     <script>
@@ -826,6 +841,21 @@
             if (elRight) elRight.textContent = teamRightName;
         }
 
+        // Kontrol Visibility Overlay Ban/Pick (Fade In / Fade Out)
+        let isDraftVisible = true;
+        function setDraftVisible(visible) {
+            isDraftVisible = Boolean(visible);
+            const overlayEl = document.getElementById('draft-overlay');
+            if (!overlayEl) return;
+            if (isDraftVisible) {
+                overlayEl.classList.remove('hidden');
+                console.log("[BP Overlay] Draft Overlay Tampil (Fade In)");
+            } else {
+                overlayEl.classList.add('hidden');
+                console.log("[BP Overlay] Draft Overlay Disembunyikan (Fade Out)");
+            }
+        }
+
         // Baca URL Parameters jika ada
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('bo')) currentBO = parseInt(urlParams.get('bo')) || 3;
@@ -833,6 +863,9 @@
         if (urlParams.get('winRight')) scoreRight = parseInt(urlParams.get('winRight')) || 0;
         if (urlParams.get('teamA')) teamLeftName = urlParams.get('teamA');
         if (urlParams.get('teamB')) teamRightName = urlParams.get('teamB');
+        if (urlParams.get('visible') === 'false' || urlParams.get('hide') === '1') {
+            setDraftVisible(false);
+        }
         renderSeriesDots();
         renderTeamNames();
 
@@ -1086,6 +1119,9 @@
                         if (msg.draftPhases) draftPhases = msg.draftPhases;
                         if (msg.draftData) {
                             draftState = msg.draftData;
+                            if (draftState.draftVisible !== undefined) {
+                                setDraftVisible(draftState.draftVisible);
+                            }
                             renderDraftOverlay();
                         }
 
@@ -1123,6 +1159,9 @@
                         if (teamsChanged) renderTeamNames();
                     } else if (msg.type === 'DRAFT_STATE_UPDATED') {
                         draftState = msg.data;
+                        if (draftState && draftState.draftVisible !== undefined) {
+                            setDraftVisible(draftState.draftVisible);
+                        }
                         renderDraftOverlay();
                     } else if (msg.type === 'DRAFT_TIMER_TICK') {
                         if (draftState) draftState.timer = msg.data.timer;

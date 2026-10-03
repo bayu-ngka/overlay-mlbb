@@ -6,6 +6,7 @@
   "teamRight": "NAKR",
   "mapName": "BROKEN WALL",
   "timerCutout": false,
+  "scoreboardVisible": true,
   "sponsorMode": "auto",
   "activeSponsorId": null,
   "ocrUrl": "http://localhost:14337/MLBB.json"

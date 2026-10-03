@@ -34,6 +34,7 @@ const defaultControlState = {
   teamRight: "ONI",      // Inisial tim kanan
   mapName: "BROKEN WALL",
   timerCutout: false,    // true: tembus pandang in-game, false: normal
+  scoreboardVisible: true, // Kontrol visibility Scoreboard (sb1.html)
   sponsorMode: "auto",   // auto: rotasi, atau id sponsor
   activeSponsorId: null,
   ocrUrl: "http://192.168.43.253:14337/MLBB.json" // URL JSON endpoint OCR (LAN / Localhost)
@@ -44,6 +45,7 @@ const defaultDraftState = {
   currentPhaseIndex: 0,
   timer: 45,
   timerRunning: false,
+  draftVisible: true,    // Kontrol visibility Ban & Pick Overlay (bp1.html)
   blueBans: ["", "", "", "", ""],
   redBans: ["", "", "", "", ""],
   bluePicks: ["", "", "", "", ""],
