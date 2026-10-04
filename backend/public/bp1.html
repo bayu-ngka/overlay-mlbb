@@ -185,14 +185,21 @@
             padding-top: 4px;
         }
 
-        /* Timer Progress Bar (Tidak terlalu lebar, ringkas di bawah teks fase) */
+        /* Timer Progress Bar & Digital Number (Area 3) */
+        .area3-timer-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
         .area3-timer-wrapper {
-            width: 240px;
+            width: 200px;
             height: 6px;
             background-color: #E2E8F0;
             border-radius: 3px;
             overflow: hidden;
-            margin-top: 4px;
             position: relative;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
         }
@@ -202,7 +209,18 @@
             height: 100%;
             background: linear-gradient(90deg, var(--golkar-gold), var(--golkar-yellow));
             border-radius: 3px;
-            transition: width 0.1s linear;
+            transition: width 0.25s linear;
+        }
+
+        #area3-timer-text {
+            font-family: 'Teko', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #0F172A;
+            letter-spacing: 1px;
+            min-width: 28px;
+            text-align: left;
+            line-height: 1;
         }
 
         /* Tempat Iklan di Bagian Bawah Area 3 */
@@ -752,9 +770,12 @@
             </div>
         </div>
 
-        <!-- Progress Timer Bar Ringkas (Simulasi Waktu 30s dari 60s = 50%) -->
-        <div class="area3-timer-wrapper">
-            <div id="area3-timer-bar" style="width: 50%;"></div>
+        <!-- Progress Timer Bar Ringkas & Angka Detik -->
+        <div class="area3-timer-container">
+            <div class="area3-timer-wrapper">
+                <div id="area3-timer-bar" style="width: 100%;"></div>
+            </div>
+            <div id="area3-timer-text">45s</div>
         </div>
 
         <!-- Tempat Iklan di Bawahnya (Sinkron dengan Scoreboard sb1) -->
@@ -869,10 +890,51 @@
         renderSeriesDots();
         renderTeamNames();
 
-        // WebSocket Listener (Realtime terhubung ke server port 4000)
+        // Default DRAFT_PHASES 18 Tahapan Resmi MLBB
+        const DEFAULT_DRAFT_PHASES = [
+            { index: 0, type: "BANNING", side: "blue", action: "ban", targets: [{ slot: 0, label: "Blue Ban 1", player: 1 }] },
+            { index: 1, type: "BANNING", side: "red", action: "ban", targets: [{ slot: 0, label: "Red Ban 1", player: 1 }] },
+            { index: 2, type: "BANNING", side: "blue", action: "ban", targets: [{ slot: 1, label: "Blue Ban 2", player: 2 }] },
+            { index: 3, type: "BANNING", side: "red", action: "ban", targets: [{ slot: 1, label: "Red Ban 2", player: 2 }] },
+            { index: 4, type: "BANNING", side: "blue", action: "ban", targets: [{ slot: 2, label: "Blue Ban 3", player: 3 }] },
+            { index: 5, type: "BANNING", side: "red", action: "ban", targets: [{ slot: 2, label: "Red Ban 3", player: 3 }] },
+            { index: 6, type: "PICKING", side: "blue", action: "pick", targets: [{ slot: 0, label: "Blue Pick 1", player: 1 }] },
+            { index: 7, type: "PICKING", side: "red", action: "pick", targets: [{ slot: 0, label: "Red Pick 1", player: 1 }, { slot: 1, label: "Red Pick 2", player: 2 }] },
+            { index: 8, type: "PICKING", side: "blue", action: "pick", targets: [{ slot: 1, label: "Blue Pick 2", player: 2 }, { slot: 2, label: "Blue Pick 3", player: 3 }] },
+            { index: 9, type: "PICKING", side: "red", action: "pick", targets: [{ slot: 2, label: "Red Pick 3", player: 3 }] },
+            { index: 10, type: "BANNING", side: "red", action: "ban", targets: [{ slot: 3, label: "Red Ban 4", player: 4 }] },
+            { index: 11, type: "BANNING", side: "blue", action: "ban", targets: [{ slot: 3, label: "Blue Ban 4", player: 4 }] },
+            { index: 12, type: "BANNING", side: "red", action: "ban", targets: [{ slot: 4, label: "Red Ban 5", player: 5 }] },
+            { index: 13, type: "BANNING", side: "blue", action: "ban", targets: [{ slot: 4, label: "Blue Ban 5", player: 5 }] },
+            { index: 14, type: "PICKING", side: "red", action: "pick", targets: [{ slot: 3, label: "Red Pick 4", player: 4 }] },
+            { index: 15, type: "PICKING", side: "blue", action: "pick", targets: [{ slot: 3, label: "Blue Pick 4", player: 4 }, { slot: 4, label: "Blue Pick 5", player: 5 }] },
+            { index: 16, type: "PICKING", side: "red", action: "pick", targets: [{ slot: 4, label: "Red Pick 5", player: 5 }] },
+            { index: 17, type: "PREPARATION", side: "none", action: "none", targets: [] }
+        ];
+
+        // WebSocket Listener (Realtime terhubung ke server port 4000/8055)
         let draftState = null;
-        let draftPhases = [];
+        let draftPhases = DEFAULT_DRAFT_PHASES;
         let allHeroesList = [];
+
+        async function fetchDraftData() {
+            try {
+                const res = await fetch('/api/draft');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.phases && Array.isArray(data.phases) && data.phases.length > 0) {
+                        draftPhases = data.phases;
+                    }
+                    if (data.state) {
+                        draftState = data.state;
+                        renderDraftOverlay();
+                    }
+                }
+            } catch (e) {
+                console.error("Error fetching initial draft data:", e);
+            }
+        }
+        fetchDraftData();
 
         async function fetchHeroesLookup() {
             try {
@@ -893,7 +955,8 @@
         function renderDraftOverlay() {
             if (!draftState) return;
 
-            const currentPhase = draftPhases[draftState.currentPhaseIndex] || {
+            const phasesList = (draftPhases && draftPhases.length > 0) ? draftPhases : DEFAULT_DRAFT_PHASES;
+            const currentPhase = phasesList[draftState.currentPhaseIndex] || {
                 type: "PREPARATION", side: "none", action: "none", targetSlot: -1
             };
 
@@ -903,7 +966,12 @@
             const arrowRightEl = document.getElementById('phase-arrow-right');
 
             if (phaseTextEl) {
-                phaseTextEl.textContent = currentPhase.type === "PREPARATION" ? "PREPARATION" : currentPhase.type;
+                const rawType = (currentPhase.type || currentPhase.action || "PREPARATION").toUpperCase();
+                let displayText = "PREPARATION";
+                if (rawType.includes("PICK")) displayText = "PICKING";
+                else if (rawType.includes("BAN")) displayText = "BANNING";
+                else displayText = rawType;
+                phaseTextEl.textContent = displayText;
             }
 
             if (arrowLeftEl && arrowRightEl) {
@@ -1086,10 +1154,15 @@
 
         function updateTimerBar(seconds) {
             const bar = document.getElementById('area3-timer-bar');
+            const txt = document.getElementById('area3-timer-text');
+            const sec = parseInt(seconds) || 0;
             if (bar) {
                 const totalSec = 45;
-                const pct = Math.max(0, Math.min(100, (seconds / totalSec) * 100));
+                const pct = Math.max(0, Math.min(100, (sec / totalSec) * 100));
                 bar.style.width = `${pct}%`;
+            }
+            if (txt) {
+                txt.textContent = `${sec}s`;
             }
         }
 

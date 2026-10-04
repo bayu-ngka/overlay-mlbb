@@ -131,6 +131,9 @@ let draftTimerInterval = null;
 
 function startDraftTimer() {
   if (draftTimerInterval) clearInterval(draftTimerInterval);
+  if (!currentDraftState.timer || currentDraftState.timer <= 0) {
+    currentDraftState.timer = 45;
+  }
   currentDraftState.timerRunning = true;
   saveDraftState(currentDraftState);
   broadcastState('DRAFT_STATE_UPDATED', currentDraftState);
@@ -148,6 +151,8 @@ function startDraftTimer() {
     } else {
       currentDraftState.timerRunning = false;
       clearInterval(draftTimerInterval);
+      saveDraftState(currentDraftState);
+      broadcastState('DRAFT_STATE_UPDATED', currentDraftState);
     }
   }, 1000);
 }
