@@ -108,39 +108,44 @@
             align-items: center;
         }
 
-        /* Mode Lubang / Transparan (In-game Timer Passthrough):
-           Membuat celah tembus pandang di tengah Area 1 dan pattern-nya selebar 88px, tinggi 42px */
+        /* Mode Lubang / Transparan Penuh (Area 1, Area 5, dan Area 6 habis tembus pandang in-game):
+           - Area 1 (300px): bagian atas setinggi 70px transparan penuh
+           - Area 5 (300px) & Area 6 (300px): dihabiskan transparan penuh (display: none / opacity 0)
+           - Total bukaan bersih tembus pandang = 300 + 300 + 300 = 900px (dari batas Area 7 s.d. Area 8)
+           - Area 2 di bawah Area 1 (tinggi 25px) tetap solid untuk series BO3 dots */
+        body.mode-cutout #area1,
         #area1.timer-cutout {
-            -webkit-mask-image: linear-gradient(to right,
-                    #000 0px,
-                    #000 calc(50% - 44px),
-                    transparent calc(50% - 44px),
-                    transparent calc(50% + 44px),
-                    #000 calc(50% + 44px),
-                    #000 100%),
-                linear-gradient(to bottom,
+            -webkit-mask-image: linear-gradient(to bottom,
                     transparent 0px,
-                    transparent 44px,
-                    #000 44px,
+                    transparent 70px,
+                    #000 70px,
                     #000 100%);
-            -webkit-mask-composite: source-over, source-over;
-            mask-image: linear-gradient(to right,
-                    #000 0px,
-                    #000 calc(50% - 44px),
-                    transparent calc(50% - 44px),
-                    transparent calc(50% + 44px),
-                    #000 calc(50% + 44px),
-                    #000 100%),
-                linear-gradient(to bottom,
+            mask-image: linear-gradient(to bottom,
                     transparent 0px,
-                    transparent 44px,
-                    #000 44px,
+                    transparent 70px,
+                    #000 70px,
                     #000 100%);
-            mask-composite: add;
         }
 
-        /* Jika mode cutout aktif, sembunyikan teks timer HTML */
-        #area1.timer-cutout #timer-text {
+        /* Area 5 & Area 6 dihabiskan sepenuhnya saat cutout aktif */
+        body.mode-cutout #area5,
+        body.mode-cutout #area6,
+        #scoreboard.timer-cutout-active #area5,
+        #scoreboard.timer-cutout-active #area6 {
+            display: none !important;
+        }
+
+        /* Saat mode cutout aktif:
+           1. Timer & Kill score HTML di-hidden agar tembus timer & kill score in-game
+           2. Info teks & koin Gold Lead (.gold-lead-content) di-hidden (wadah gradasi Area 3 & Area 4 tetap utuh) */
+        body.mode-cutout #timer-text,
+        body.mode-cutout .score-box,
+        body.mode-cutout .gold-lead-content,
+        #scoreboard.timer-cutout-active #timer-text,
+        #scoreboard.timer-cutout-active .score-box,
+        #scoreboard.timer-cutout-active .gold-lead-content,
+        #area1.timer-cutout #timer-text,
+        #area1.timer-cutout .score-box {
             display: none !important;
         }
 
@@ -420,7 +425,7 @@
             display: flex;
             align-items: center;
             justify-content: space-evenly;
-            padding: 0 10px;
+            padding: 0 16px;
             box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
         }
 
@@ -436,7 +441,7 @@
             display: flex;
             align-items: center;
             justify-content: space-evenly;
-            padding: 0 10px;
+            padding: 0 16px;
             box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
         }
 
@@ -444,15 +449,15 @@
         .objective-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        /* Icon SVG Turret, Turtle, Lord, Gold Circle: Ukuran diperbesar proporsional */
+        /* Icon SVG Turret, Lord, Gold Circle: Ukuran proporsional */
         .obj-icon {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             object-fit: contain;
-            filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.25));
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
         }
 
         /* Angka Nilai Objektif: Gaya Monospace / Courier New (Space Mono) */
@@ -463,12 +468,12 @@
             color: #111827;
             line-height: 1;
             font-variant-numeric: tabular-nums;
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
 
         .obj-val.gold-text {
             font-size: 25px;
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
 
         /* =========================================================
@@ -647,13 +652,8 @@
 
 <body>
     <div id="scoreboard">
-        <!-- AREA 5: STATS TIM BIRU (KIRI) -> Turtle, Lord, Turret, Gold -->
+        <!-- AREA 5: STATS TIM BIRU (KIRI) -> Lord, Turret, Gold -->
         <div id="area5">
-            <!-- Turtle -->
-            <div class="objective-item" title="Turtle Biru">
-                <img class="obj-icon" src="/assets/mpl_icons/turtle.svg" alt="Turtle">
-                <span class="obj-val" id="blue-turtle">0</span>
-            </div>
             <!-- Lord -->
             <div class="objective-item" title="Lord Biru">
                 <img class="obj-icon" src="/assets/mpl_icons/lord.svg" alt="Lord">
@@ -667,7 +667,7 @@
             <!-- Gold -->
             <div class="objective-item" title="Gold Biru">
                 <img class="obj-icon" src="/assets/mpl_icons/gold_circle.svg" alt="Gold">
-                <span class="obj-val gold-text" id="blue-gold">9999</span>
+                <span class="obj-val gold-text" id="blue-gold">0</span>
             </div>
         </div>
 
@@ -724,11 +724,11 @@
             </div>
         </div>
 
-        <!-- AREA 6: STATS TIM MERAH (KANAN) -> Gold, Turret, Lord, Turtle (Simetris) -->
+        <!-- AREA 6: STATS TIM MERAH (KANAN) -> Gold, Turret, Lord (Simetris) -->
         <div id="area6">
             <!-- Gold -->
             <div class="objective-item" title="Gold Merah">
-                <span class="obj-val gold-text" id="red-gold">5.0K</span>
+                <span class="obj-val gold-text" id="red-gold">0</span>
                 <img class="obj-icon" src="/assets/mpl_icons/gold_circle.svg" alt="Gold">
             </div>
             <!-- Turret -->
@@ -740,11 +740,6 @@
             <div class="objective-item" title="Lord Merah">
                 <span class="obj-val" id="red-lord">0</span>
                 <img class="obj-icon" src="/assets/mpl_icons/lord.svg" alt="Lord">
-            </div>
-            <!-- Turtle -->
-            <div class="objective-item" title="Turtle Merah">
-                <span class="obj-val" id="red-turtle">0</span>
-                <img class="obj-icon" src="/assets/mpl_icons/turtle.svg" alt="Turtle">
             </div>
         </div>
 
@@ -860,12 +855,17 @@
         function setTimerCutout(active) {
             isTimerCutoutActive = Boolean(active);
             const area1El = document.getElementById('area1');
+            const sbEl = document.getElementById('scoreboard');
             if (isTimerCutoutActive) {
-                area1El.classList.add('timer-cutout');
-                console.log("[Scoreboard] Mode Timer Cutout (Transparan Passthrough) AKTIF");
+                if (area1El) area1El.classList.add('timer-cutout');
+                if (sbEl) sbEl.classList.add('timer-cutout-active');
+                document.body.classList.add('mode-cutout');
+                console.log("[Scoreboard] Mode Cutout 600px (Transparan Passthrough + Hidden Stats) AKTIF");
             } else {
-                area1El.classList.remove('timer-cutout');
-                console.log("[Scoreboard] Mode Timer OCR (Normal HTML) AKTIF");
+                if (area1El) area1El.classList.remove('timer-cutout');
+                if (sbEl) sbEl.classList.remove('timer-cutout-active');
+                document.body.classList.remove('mode-cutout');
+                console.log("[Scoreboard] Mode Normal OCR (Teks Timer, Kill Score, Stats Ditampilkan) AKTIF");
             }
         }
 
@@ -1101,8 +1101,6 @@
             turret2: null,
             lord1: null,
             lord2: null,
-            turtle1: null,
-            turtle2: null,
             gold1Raw: null,  // Angka integer murni (misal: 9850, 10200)
             gold2Raw: null,
             gold1Str: '0',   // Format tampilan untuk UI (misal: 9850, 10.2K)
@@ -1383,13 +1381,6 @@
                 if (el) el.textContent = val;
             }
 
-            if (/^\d+$/.test(String(data.turtle1 || '').trim())) {
-                const val = parseInt(data.turtle1, 10);
-                lastValid.turtle1 = val;
-                const el = document.getElementById('blue-turtle');
-                if (el) el.textContent = val;
-            }
-
             // --- D. OBJEKTIF TIM MERAH (KANAN) ---
             if (/^\d+$/.test(String(data.turret2 || '').trim())) {
                 const val = parseInt(data.turret2, 10);
@@ -1402,13 +1393,6 @@
                 const val = parseInt(data.lord2, 10);
                 lastValid.lord2 = val;
                 const el = document.getElementById('red-lord');
-                if (el) el.textContent = val;
-            }
-
-            if (/^\d+$/.test(String(data.turtle2 || '').trim())) {
-                const val = parseInt(data.turtle2, 10);
-                lastValid.turtle2 = val;
-                const el = document.getElementById('red-turtle');
                 if (el) el.textContent = val;
             }
 

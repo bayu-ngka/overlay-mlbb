@@ -5,7 +5,7 @@
   "teamLeft": "IMA",
   "teamRight": "NAKR",
   "mapName": "BROKEN WALL",
-  "timerCutout": false,
+  "timerCutout": true,
   "scoreboardVisible": true,
   "sponsorMode": "auto",
   "activeSponsorId": null,
