@@ -2084,6 +2084,7 @@ Belum ada tes koneksi. Klik tombol di atas untuk mengetes respon link OCR.
             }
 
             const nextBtn = `<button class="btn-draft-step btn-draft-sec" onclick="stepNextPhase()">NEXT ▶</button>`;
+            const resetBtn = `<button class="btn-draft-step btn-danger" onclick="confirmResetDraft()">RESET</button>`;
             btnContainer.innerHTML = prevBtn + lockButtonsHTML + nextBtn + resetBtn;
 
             // Render tombol status visibility overlay
