@@ -1,33 +1,33 @@
 {
-  "currentPhaseIndex": 0,
-  "timer": 0,
+  "currentPhaseIndex": 14,
+  "timer": 45,
   "timerRunning": false,
   "draftVisible": true,
   "blueBans": [
-    "",
-    "",
-    "",
-    "",
-    ""
+    "Carmilla",
+    "Aulus",
+    "Edith",
+    "Alucard",
+    "Chang'e"
   ],
   "redBans": [
-    "",
-    "",
-    "",
-    "",
-    ""
+    "Eudora",
+    "Estes",
+    "Benedetta",
+    "Angela",
+    "Aldous"
   ],
   "bluePicks": [
-    "",
-    "",
-    "",
+    "Arlott",
+    "Barats",
+    "Clint",
     "",
     ""
   ],
   "redPicks": [
-    "",
-    "",
-    "",
+    "Argus",
+    "Brody",
+    "Esmeralda",
     "",
     ""
   ],
