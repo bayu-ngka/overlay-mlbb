@@ -40,5 +40,21 @@
       { "src": "/assets/logos/sponsor/sponsor4_2_Ria Printing.png", "alt": "Ria Printing" }
     ],
     "duration": 5000
+  },
+  {
+    "id": 6,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor5_1_Kata Kita Image.png", "alt": "Kata Kita Image" }
+    ],
+    "duration": 5000
+  },
+  {
+    "id": 7,
+    "label": "SUPPORTED BY",
+    "logos": [
+      { "src": "/assets/logos/sponsor/sponsor6_1_bndproject.id.png", "alt": "bndproject.id" }
+    ],
+    "duration": 5000
   }
 ]
