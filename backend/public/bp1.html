@@ -185,21 +185,14 @@
             padding-top: 4px;
         }
 
-        /* Timer Progress Bar & Digital Number (Area 3) */
-        .area3-timer-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 2px;
-        }
-
+        /* Timer Progress Bar (Area 3) */
         .area3-timer-wrapper {
-            width: 200px;
+            width: 240px;
             height: 6px;
             background-color: #E2E8F0;
             border-radius: 3px;
             overflow: hidden;
+            margin-top: 4px;
             position: relative;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
         }
@@ -210,17 +203,6 @@
             background: linear-gradient(90deg, var(--golkar-gold), var(--golkar-yellow));
             border-radius: 3px;
             transition: width 0.25s linear;
-        }
-
-        #area3-timer-text {
-            font-family: 'Teko', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: #0F172A;
-            letter-spacing: 1px;
-            min-width: 28px;
-            text-align: left;
-            line-height: 1;
         }
 
         /* Tempat Iklan di Bagian Bawah Area 3 */
@@ -770,12 +752,9 @@
             </div>
         </div>
 
-        <!-- Progress Timer Bar Ringkas & Angka Detik -->
-        <div class="area3-timer-container">
-            <div class="area3-timer-wrapper">
-                <div id="area3-timer-bar" style="width: 100%;"></div>
-            </div>
-            <div id="area3-timer-text">45s</div>
+        <!-- Progress Timer Bar Ringkas -->
+        <div class="area3-timer-wrapper">
+            <div id="area3-timer-bar" style="width: 100%;"></div>
         </div>
 
         <!-- Tempat Iklan di Bawahnya (Sinkron dengan Scoreboard sb1) -->
@@ -1154,15 +1133,11 @@
 
         function updateTimerBar(seconds) {
             const bar = document.getElementById('area3-timer-bar');
-            const txt = document.getElementById('area3-timer-text');
             const sec = parseInt(seconds) || 0;
             if (bar) {
                 const totalSec = 45;
                 const pct = Math.max(0, Math.min(100, (sec / totalSec) * 100));
                 bar.style.width = `${pct}%`;
-            }
-            if (txt) {
-                txt.textContent = `${sec}s`;
             }
         }
 
